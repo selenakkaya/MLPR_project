@@ -1,6 +1,11 @@
 import numpy
 
 
+#--------------------------------------------------------
+#-------------------convert matrices---------------------
+#--------------------------------------------------------
+
+
 def mcol(row): # convert a row array into a column one
     return row.reshape((row.size), 1)
 
@@ -21,21 +26,12 @@ def empirical_covariance(D, mu):
     DC = D - mcol(mu)
     C = 1 / n * numpy.dot(DC, numpy.transpose(DC))
     return C
-#--------------------------------------------------------
-#---------------------z-normalize------------------------
-#--------------------------------------------------------
-def z_norm(D):
-    mu_D = numpy.mean(D, axis=1) # mean of each column
-    sigma_D = numpy.std(D, axis=1) #std dev of each column
 
-    z_norm_D = (D - mcol(mu_D)) / mcol(sigma_D)
-    return z_norm_D
-#D_norm = z_norm(D) 
-
-
+    
 #--------------------------------------------------------
 #---------------------Loading Data-----------------------
 #--------------------------------------------------------
+
 
 def load_data(file):
     D = []
@@ -55,3 +51,39 @@ def load_data(file):
 D, L = load_data("..\Dataset\Train.txt")
 
 DTE, LTE = load_data("..\Dataset\Test.txt")
+
+#--------------------------------------------------------
+#---------------------z-normalize------------------------
+#--------------------------------------------------------
+def z_norm(D):
+    mu_D = numpy.mean(D, axis=1) # mean of each column
+    sigma_D = numpy.std(D, axis=1) #std dev of each column
+
+    z_norm_D = (D - mcol(mu_D)) / mcol(sigma_D)
+    return z_norm_D
+#D_norm = z_norm(D) 
+
+#--------------------------------------------------------
+#--------------------Gaussianization---------------------
+#--------------------------------------------------------
+
+from scipy.stats import norm
+
+def gaussianization_f(DTR, DTE=None):
+    rankDTR = numpy.zeros(DTR.shape)
+    for i in range(DTR.shape[0]):
+        for j in range(DTR.shape[1]):
+            rankDTR[i][j] = (DTR[i] < DTR[i][j]).sum()
+    rankDTR = (rankDTR+1) / (DTR.shape[1]+2)
+    
+    if(DTE is not None):
+        rankData_test = numpy.zeros(DTE.shape)
+        for i in range(DTE.shape[0]):
+            for j in range(DTE.shape[1]):
+                rankData_test[i][j] = (DTR[i] < DTE[i][j]).sum()
+        rankData_test = (rankData_test+1) / (DTR.shape[1]+2)
+        return norm.ppf(rankDTR), norm.ppf(rankData_test)
+    return norm.ppf(rankDTR)
+
+D_gauss = gaussianization_f(D)
+

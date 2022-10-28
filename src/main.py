@@ -17,6 +17,9 @@ DTE, LTE = arrangeData.load_data("..\Dataset\Test.txt")
 D_norm = arrangeData.z_norm(D) 
 """
 D, L = arrangeData.load_data("..\Dataset\Train.txt")
-
+"""
 #plot for raw feature
 plotter.plt_RawFeature(D)
+"""
+#plot for raw feature
+plotter.plt_gaussianFeature(D)
