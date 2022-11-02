@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 
 import arrangeData
+import numpy
 
 Male_Raw = arrangeData.D[:,arrangeData.L == 0]
 Female_Raw = arrangeData.D[:,arrangeData.L == 1]
@@ -34,4 +35,17 @@ def plt_gaussianFeature(D):
         plt.savefig('gaussDataPlots\hist_feature_'+str(i)+'_gauss.jpeg')
         i=i+1
         plt.show()
+
+
+def show_heatmap(D, title, color):
+    plt.figure()
+    pearson_matrix = numpy.corrcoef(D)
+    plt.xlabel("Heatmaps of Pearson Correlation "+ title)
+    plt.imshow(pearson_matrix, cmap=color, vmin=-1, vmax=1)
+    plt.savefig("heatmaps\heatmap_%s.jpeg" % (title))
+
+
+show_heatmap(arrangeData.D, "Raw", "Greens")
+show_heatmap(arrangeData.D[:, arrangeData.L==1], "Female", "Reds")
+show_heatmap(arrangeData.D[:, arrangeData.L==0], "Male", "Blues")
 
