@@ -26,4 +26,10 @@ def test_gauss_classifiers(D, L, options):
     min_DCF, _, _ =v.kfold(options)
     print("Full covariance - tied: %.3f" % min_DCF)
 
+    gc = MVG.GaussianClassifier("naive bayes", "tied")
+    v = validator.CrossValidator(gc, D, L)
+    min_DCF, _, _ =v.kfold(options)
+    print("Naive Bayes - tied: %.3f" % min_DCF)
+    print("")
+
 

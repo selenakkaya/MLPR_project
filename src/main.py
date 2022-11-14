@@ -1,26 +1,43 @@
 import arrangeData
-import plotter
+# import plotter 
 import test_models
-#----------------------------------------------------
-#-------------------Load data------------------------
-#----------------------------------------------------
+import PCA
+#----------------------------------------------------------------
+#-------------------Load data------------------------------------
+#----------------------------------------------------------------
 """
 D, L = arrangeData.load_data("..\Dataset\Train.txt")
 
-DTE, LTE = arrangeData.load_data("..\Dataset\Test.txt")
 
 """
-#----------------------------------------------------
-#-------------------Z_Normalization------------------
-#----------------------------------------------------
+DTE, LTE = arrangeData.load_data("..\Dataset\Test.txt")
+
+#----------------------------------------------------------------
+#-------------------Z_Normalization------------------------------
+#----------------------------------------------------------------
 """
 D_norm = arrangeData.z_norm(D) 
 """
 
-#----------------------Load Data----------------------
+#----------------------Load Data----------------------------------
 
-D, L = arrangeData.load_data("..\Dataset\Train.txt")
-D_gauss = arrangeData.gaussianization_f(D)
+D = arrangeData.DTR
+L = arrangeData.LTR 
+#D_z_norm, mu, sigma = arrangeData.z_norm(D)
+
+#D_gauss = arrangeData.gaussianization_f(D)
+
+
+
+#----------------------Show Heatmaps------------------------------
+
+"""
+plotter.show_heatmap(arrangeData.D, "Raw", "Greens")
+plotter.show_heatmap(arrangeData.D[:, arrangeData.L==1], "Female", "Reds")
+plotter.show_heatmap(arrangeData.D[:, arrangeData.L==0], "Male", "Blues")
+"""
+
+
 
 
 
@@ -31,23 +48,53 @@ plotter.plt_RawFeature(D)
 #plot for raw feature
 plotter.plt_gaussianFeature(D)
 """
-#----------------------------------------------------
-#------------------------MVG-------------------------
-#----------------------------------------------------
+#----------------------Show PCA result------------------------------
+
+"""
+
+PCA.show_PCA_result()
+
+"""
+
+
+#----------------------------------------------------------------
+#------------------------MVG-------------------------------------
+#----------------------------------------------------------------
+
+#-------------RAW Features, no PCA, K = 5------------------------
 
 
 def gaussian_classifiers(D, L):
     options = {"m": None, #No PCA
                "gaussianization": "no",
-               "K": 5, 
-               "pi": 0.5, 
-               "costs": (1, 1)}
+                "normalization" : "no",
+                "K": 5, 
+                "pi": 0.5, 
+                "costs": (1, 1)}
 
-    options["gaussianization"] = "no"
-    for options["m"] in [None ,12]:
+    options["normalization"] = "no" 
+    for options["gaussianization"] in ["no", "yes"]:
+        for options["m"] in [None, 10, 9]:
+            for options["pi"] in [0.5, 0.1, 0.9]:
+                print(options)
+                test_models.test_gauss_classifiers(D, L, options)
+
+    options["normalization"] = "yes" 
+    options["gaussianization"] ="no"
+    for options["m"] in [None ,10, 9]:
         for options["pi"] in [0.5, 0.1, 0.9]:
             print(options)
             test_models.test_gauss_classifiers(D, L, options)
+
+gaussian_classifiers(D, L)
+
+
+
+
+
+#-------------z-normed features, no PCA, K = 5------------------------
+#gaussian_classifiers(D_z_norm, L)
+
 """
 def gaussian_classifiers_PCA_11(D, L):
     options = {"m": None, #No PCA
@@ -93,4 +140,3 @@ def gaussian_classifiers_with_gaussianization(D, L):
             test_models.test_gauss_classifiers(D, L, options)
 """
 #-----------------------invoke MVG --------------------------
-gaussian_classifiers(D, L)

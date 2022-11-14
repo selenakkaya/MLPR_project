@@ -17,6 +17,8 @@ class CrossValidator:
         K = options["K"]
         m = options["m"]
         gaussianization = options["gaussianization"]
+        normalization = options["normalization"]
+
         pi = options["pi"]
         (cfn, cfp) = options["costs"]
         
@@ -42,11 +44,12 @@ class CrossValidator:
             LTE = L[idxTest]
             
             #zed-normalizes the data with the mu and sigma computed with DTR
-            DTR, mu, sigma = z_norm(DTR)
-            DTE, mu, sigma = z_norm(DTE, mu, sigma)
+            if normalization == "yes":
+                DTR, mu, sigma = z_norm(DTR)
+                DTE, mu, sigma = z_norm(DTE, mu, sigma)
             
-            if gaussianization_f == "yes":
-                DTR, DTE = gaussianization(DTR, DTE)
+            if gaussianization == "yes":
+                DTR, DTE = gaussianization_f(DTR, DTE)
             
             if m is not None: #PCA needed
                 DTR, P = PCA_reduce(DTR, m)
@@ -104,3 +107,33 @@ def compute_min_DCF(scores, labels, pi, cfn, cfp):
         dcf_list.append(act_DCF)
     return numpy.array(dcf_list).min()
  
+def plot_bayes_error(scores, labels, title):
+    import pylab
+    act_y = []
+    min_y = []
+    pis = numpy.linspace(-3, 3, 21)
+    
+    for p in pis:
+        pi = 1.0 / (1.0 + numpy.exp(-p))
+        min_y.append(compute_min_DCF(scores, labels, pi, 1, 1))
+        act_y.append(compute_act_DCF(scores, labels, pi, 1, 1))
+    pylab.figure()
+    pylab.plot(pis, min_y, color="b")
+    pylab.plot(pis, act_y, color="r")
+    pylab.ylim(0, 1.1)
+    pylab.savefig('%s.pdf' % title)
+
+def plot_ROC(scores, labels):
+    import pylab
+    thresholds = numpy.array(scores)
+    thresholds.sort()
+    
+    fpr = numpy.zeros(thresholds.size)
+    tpr = numpy.zeros(thresholds.size)
+    for i, t in enumerate(thresholds):
+        predictions = numpy.int32(scores > t)
+        CM = compute_confusion_matrix(predictions, labels)
+        tpr[i] = CM[1, 1] / (CM[1, 1] + CM[0, 1])
+        fpr[i] = CM[1, 0] / (CM[0, 0] + CM[1, 0])
+    pylab.plot(fpr, tpr)
+    pylab.show()

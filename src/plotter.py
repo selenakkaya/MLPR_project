@@ -2,9 +2,11 @@ import matplotlib.pyplot as plt
 
 import arrangeData
 import numpy
+"""
+D_gauss = arrangeData.gaussianization_f(arrangeData.DTR)
 
-Male_Raw = arrangeData.D[:,arrangeData.L == 0]
-Female_Raw = arrangeData.D[:,arrangeData.L == 1]
+Male_Raw = arrangeData.DTR[:,arrangeData.LTR == 0]
+Female_Raw = arrangeData.DTR[:,arrangeData.LTR == 1]
 
 def plt_RawFeature(D):
     
@@ -44,8 +46,4 @@ def show_heatmap(D, title, color):
     plt.imshow(pearson_matrix, cmap=color, vmin=-1, vmax=1)
     plt.savefig("heatmaps\heatmap_%s.jpeg" % (title))
 
-
-show_heatmap(arrangeData.D, "Raw", "Greens")
-show_heatmap(arrangeData.D[:, arrangeData.L==1], "Female", "Reds")
-show_heatmap(arrangeData.D[:, arrangeData.L==0], "Male", "Blues")
-
+"""

@@ -18,19 +18,24 @@ class GaussianClassifier:
         D_M = DTR[:, LTR==0]
         D_F = DTR[:, LTR==1]
         
-        mu_Interference = mcol(D_M.mean(1))
-        mu_Pulsar = mcol(D_F.mean(1))
+        mu_male = mcol(D_M.mean(1))
+        mu_female = mcol(D_F.mean(1))
+
+        DC0 = D_M - mu_male
+        DC1 = D_F - mu_female
+        Nc0 = D_M.shape[1]
+        Nc1 = D_F.shape[1]
         
         
-        C_M         = np.dot(D_M - mu_Interference, (D_M - mu_Interference).T) / D_M.shape[1]
-        C_F         = np.dot(D_F - mu_Pulsar, (D_F - mu_Pulsar).T) / D_F.shape[1]
+        C_M         = np.dot(DC0, DC0.T) / Nc0
+        C_F         = np.dot(DC1, DC1.T) / Nc1
         naiveC_M    = C_M * np.eye(C_M.shape[0])
         naiveC_F    = C_F * np.eye(C_F.shape[0])
-        tiedC      = (C_M*D_M.shape[1] + C_F*D_F.shape[1]) / float(DTR.shape[1])
-        tiedNaiveC = (naiveC_M*D_M.shape[1] + naiveC_F*D_F.shape[1]) / float(DTR.shape[1])
+        tiedC      = (C_M * Nc0 + C_F*Nc1) / float(DTR.shape[1])
+        tiedNaiveC = (naiveC_M * Nc0 + naiveC_F*Nc1) / float(DTR.shape[1])
         
         self.DTR, self.LTR         = DTR, LTR
-        self.mu_Interference, self.mu_Pulsar = mu_Interference, mu_Pulsar
+        self.mu_male, self.mu_female = mu_male, mu_female
         self.C_M, self.C_F           = C_M, C_F
         self.naiveC_M, self.naiveC_F = naiveC_M, naiveC_F
         self.tiedC                 = tiedC
@@ -52,7 +57,7 @@ class GaussianClassifier:
         return np.array(Y).ravel()
     
     def compute_lls(self, DTE):
-        mu_Interference, mu_Pulsar    = self.mu_Interference, self.mu_Pulsar
+        mu_male, mu_female    = self.mu_male, self.mu_female
         mode        = self.mode
         tiedness    = self.tiedness
         
@@ -68,36 +73,11 @@ class GaussianClassifier:
             print("ERROR: invalid ")
             quit()
             
-        log_densities0 = self._logpdf_GAU_ND(DTE, mu_Interference, C_M)
-        log_densities1 = self._logpdf_GAU_ND(DTE, mu_Pulsar, C_F)
+        log_densities0 = self._logpdf_GAU_ND(DTE, mu_male, C_M)
+        log_densities1 = self._logpdf_GAU_ND(DTE, mu_female, C_F)
         return log_densities0, log_densities1
     
     def compute_scores(self, DTE):
         log_densities0, log_densities1 = self.compute_lls(DTE)
         return log_densities1 - log_densities0
 
-def ML_GAU(D):
-    mu = mcol(D.mean(1))
-    sigma = np.dot((D - mu), (D - mu).T) / D.shape[1]
-    return mu, sigma
-
-
-def logpdf_GAU_ND(D, mu, sigma):
-    P = np.linalg.inv(sigma)
-    C_F = 0.5 * D.shape[0] * np.log(2 * np.pi)
-    c2 = 0.5 * np.linalg.slogdet(P)[1]
-    c3 = 0.5 * (np.dot(P, (D - mu)) * (D - mu)).sum(0)
-    return - C_F + c2 - c3
-
-    
-def compute_PCA(D,m):
-    mu = mcol(D.mean(1))
-    #covariance matrix
-    C = np.dot((D - mu), (D - mu).T) / D.shape[1]
-    #D.shape give us the number of value (n*m)
-    s, U = np.linalg.eigh(C)
-    U, s, Vh = np.linalg.svd(C)
-    P = U[:,0:m]
-
-    
-    return P

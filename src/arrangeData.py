@@ -48,7 +48,7 @@ def load_data(file):
     L = numpy.array(L, dtype=numpy.int32)
     return D, L
 
-D, L = load_data("..\Dataset\Train.txt")
+DTR, LTR = load_data("..\Dataset\Train.txt")
 
 DTE, LTE = load_data("..\Dataset\Test.txt")
 
@@ -60,9 +60,10 @@ def z_norm(D, mu=[], sigma=[]):
         mu = numpy.mean(D, axis=1) # mean of each column
         sigma = numpy.std(D, axis=1) #std dev of each column
 
-    z_norm_D = (D - mcol(mu)) / mcol(sigma)
+    z_norm_D = (D - mcol(mu))/mcol(sigma)
     return z_norm_D, mu, sigma
-#D_norm = z_norm(D) 
+
+#D_norm = z_norm(DTR) 
 
 #--------------------------------------------------------
 #--------------------Gaussianization---------------------
@@ -86,5 +87,4 @@ def gaussianization_f(DTR, DTE=None):
         return norm.ppf(rankDTR), norm.ppf(rankData_test)
     return norm.ppf(rankDTR)
 
-D_gauss = gaussianization_f(D)
 
