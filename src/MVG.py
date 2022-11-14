@@ -1,159 +1,103 @@
-import numpy
-import scipy.linalg
+import numpy as np
 
-from arrangeData import *
+import arrangeData
 
-
-def MVG(DTE, DTR, LTR):
-    h = {}
-
-    for i in range(2):
-        mu = empirical_mean(DTR)
-        C = empirical_covariance(DTR[:, LTR == i])
-        h[i] = (mu, C)
-
-    SJoint = numpy.zeros((2, DTE.shape[1]))
-    logSJoint = numpy.zeros((2, DTE.shape[1]))
-    dens = numpy.zeros((2, DTE.shape[1]))
-    classPriors = [0.5, 0.5]
-
-    for label in range(2):
-        mu, C = h[label]
-        dens[label, :] = numpy.exp(logpdf_GAU_ND(DTE, mu, C).ravel())
-        SJoint[label, :] = dens[label, :] * classPriors[label]
-        logSJoint[label, :] = logpdf_GAU_ND(DTE, mu, C).ravel() + numpy.log(classPriors[label])
-
-    SMarginal = SJoint.sum(0)
-    logSMarginal = scipy.special.logsumexp(logSJoint, axis=0)
-
-    Post1 = SJoint / mrow(SMarginal)
-    logPost = logSJoint - mrow(logSMarginal)
-    Post2 = numpy.exp(logPost)
-    LPred1 = Post1.argmax(0)
-    LPred2 = Post2.argmax(0)
-    return LPred1, LPred2, numpy.log(dens[1] / dens[0])
+mcol = arrangeData.mcol
+mrow = arrangeData.mrow
+D, L = arrangeData.load_data("..\Dataset\Train.txt")
 
 
-def naive_MVG(DTE, DTR, LTR):
-    h = {}
+class GaussianClassifier:
+    def __init__(self, mode, tiedness, class_priors=None):
+        if class_priors is None:
+            class_priors = [0.5, 0.5]
+        self.mode        = mode
+        self.tiedness    = tiedness
 
-    for i in range(2):
-        mu = empirical_mean(DTR[:, LTR == i])
-        C = empirical_covariance(DTR[:, LTR == i])
-
-        C = C * numpy.identity(C.shape[0])
-
-        h[i] = (mu, C)
-
-    SJoint = numpy.zeros((2, DTE.shape[1]))
-    logSJoint = numpy.zeros((2, DTE.shape[1]))
-    dens = numpy.zeros((2, DTE.shape[1]))
-    classPriors = [0.5, 0.5]
-
-    for label in range(2):
-        mu, C = h[label]
-        dens[label, :] = numpy.exp(logpdf_GAU_ND(DTE, mu, C).ravel())
-        SJoint[label, :] = dens[label, :] * classPriors[label]
-        logSJoint[label, :] = logpdf_GAU_ND(DTE, mu, C).ravel() + numpy.log(classPriors[label])
-
-    SMarginal = SJoint.sum(0)
-    logSMarginal = scipy.special.logsumexp(logSJoint, axis=0)
-
-    Post1 = SJoint / mrow(SMarginal)
-    logPost = logSJoint - mrow(logSMarginal)
-    Post2 = numpy.exp(logPost)
-
-    LPred1 = Post1.argmax(0)
-    LPred2 = Post2.argmax(0)
-    return LPred1, LPred2, numpy.log(dens[1] / dens[0])
+    def train(self, DTR, LTR):
+        D_M = DTR[:, LTR==0]
+        D_F = DTR[:, LTR==1]
+        
+        mu_Interference = mcol(D_M.mean(1))
+        mu_Pulsar = mcol(D_F.mean(1))
+        
+        
+        C_M         = np.dot(D_M - mu_Interference, (D_M - mu_Interference).T) / D_M.shape[1]
+        C_F         = np.dot(D_F - mu_Pulsar, (D_F - mu_Pulsar).T) / D_F.shape[1]
+        naiveC_M    = C_M * np.eye(C_M.shape[0])
+        naiveC_F    = C_F * np.eye(C_F.shape[0])
+        tiedC      = (C_M*D_M.shape[1] + C_F*D_F.shape[1]) / float(DTR.shape[1])
+        tiedNaiveC = (naiveC_M*D_M.shape[1] + naiveC_F*D_F.shape[1]) / float(DTR.shape[1])
+        
+        self.DTR, self.LTR         = DTR, LTR
+        self.mu_Interference, self.mu_Pulsar = mu_Interference, mu_Pulsar
+        self.C_M, self.C_F           = C_M, C_F
+        self.naiveC_M, self.naiveC_F = naiveC_M, naiveC_F
+        self.tiedC                 = tiedC
+        self.tiedNaiveC            = tiedNaiveC
 
 
-def tied_cov_GC(DTE, DTR, LTR):
-    h = {}
-    Ctot = 0
-    for i in range(2):
-        mu = empirical_mean(DTR[:, LTR == i])
-        C = empirical_covariance(DTR[:, LTR == i])
-        Ctot += DTR[:, LTR == i].shape[1] * C
-        h[i] = (mu)
+    def _logpdf_GAU_ND(self, X, mu, C):
+        precision = np.linalg.inv(C)
+        dimensions = X.shape[0]
+        const = -0.5 * dimensions * np.log(2*np.pi)
+        const += -0.5 * np.linalg.slogdet(C)[1]
+    
+        Y = []
+        for i in range(X.shape[1]):
+            x = X[:, i:i+1]
+            res = const - 0.5 * np.dot((x-mu).T, np.dot(precision, (x-mu)))
+            Y.append(res)
+    
+        return np.array(Y).ravel()
+    
+    def compute_lls(self, DTE):
+        mu_Interference, mu_Pulsar    = self.mu_Interference, self.mu_Pulsar
+        mode        = self.mode
+        tiedness    = self.tiedness
+        
+        if mode == "full covariance" and tiedness == "untied":
+            C_M, C_F = self.C_M, self.C_F
+        elif mode == "naive bayes" and tiedness == "untied":
+            C_M, C_F = self.naiveC_M, self.naiveC_F
+        elif mode == "full covariance" and tiedness == "tied":
+            C_M, C_F = self.tiedC, self.tiedC
+        elif mode == "naive bayes" and tiedness == "tied":
+            C_M, C_F = self.tiedNaiveC, self.tiedNaiveC
+        else:
+            print("ERROR: invalid ")
+            quit()
+            
+        log_densities0 = self._logpdf_GAU_ND(DTE, mu_Interference, C_M)
+        log_densities1 = self._logpdf_GAU_ND(DTE, mu_Pulsar, C_F)
+        return log_densities0, log_densities1
+    
+    def compute_scores(self, DTE):
+        log_densities0, log_densities1 = self.compute_lls(DTE)
+        return log_densities1 - log_densities0
 
-    Ctot = Ctot / DTR.shape[1]
-
-    SJoint = numpy.zeros((2, DTE.shape[1]))
-    logSJoint = numpy.zeros((2, DTE.shape[1]))
-    dens = numpy.zeros((2, DTE.shape[1]))
-    classPriors = [0.5, 0.5]
-
-    for label in range(2):
-        mu = h[label]
-        dens[label, :] = numpy.exp(logpdf_GAU_ND(DTE, mu, Ctot).ravel())
-        SJoint[label, :] = dens[label, :] * classPriors[label]
-        logSJoint[label, :] = logpdf_GAU_ND(DTE, mu, Ctot).ravel() + numpy.log(classPriors[label])
-
-    SMarginal = SJoint.sum(0)
-    logSMarginal = scipy.special.logsumexp(logSJoint, axis=0)
-
-    Post1 = SJoint / mrow(SMarginal)
-    logPost = logSJoint - mrow(logSMarginal)
-    Post2 = numpy.exp(logPost)
-
-    LPred1 = Post1.argmax(0)
-    LPred2 = Post2.argmax(0)
-    return LPred1, LPred2, numpy.log(dens[1] / dens[0])
-
-
-def tied_cov_naive_GC(DTE, DTR, LTR):
-    h = {}
-    Ctot = 0
-    for i in range(2):
-        mu = empirical_mean(DTR[:, LTR == i])
-        C = empirical_covariance(DTR[:, LTR == i])
-        Ctot += DTR[:, LTR == i].shape[1] * C
-        h[i] = (mu)
-
-    Ctot = Ctot / DTR.shape[1]
-    Ctot = Ctot * numpy.identity(Ctot.shape[0])
-
-    SJoint = numpy.zeros((2, DTE.shape[1]))
-    logSJoint = numpy.zeros((2, DTE.shape[1]))
-    dens = numpy.zeros((2, DTE.shape[1]))
-    classPriors = [0.5, 0.5]
-
-    for label in range(2):
-        mu = h[label]
-        dens[label, :] = numpy.exp(logpdf_GAU_ND(DTE, mu, Ctot).ravel())
-        SJoint[label, :] = dens[label, :] * classPriors[label]
-        logSJoint[label, :] = logpdf_GAU_ND(DTE, mu, Ctot).ravel() + numpy.log(classPriors[label])
-
-    SMarginal = SJoint.sum(0)
-    logSMarginal = scipy.special.logsumexp(logSJoint, axis=0)
-
-    Post1 = SJoint / mrow(SMarginal)
-    logPost = logSJoint - mrow(logSMarginal)
-    Post2 = numpy.exp(logPost)
-
-    LPred1 = Post1.argmax(0)
-    LPred2 = Post2.argmax(0)
-    return LPred1, LPred2, numpy.log(dens[1] / dens[0])
-
-# computing log denisty for a sample x
-def logpdf_GAU_ND(X, mu, C):
-    P = numpy.linalg.inv(C)
-    const = -0.5 * X.shape[0] * numpy.log(2 * numpy.pi)
-    const += -0.5 * numpy.linalg.slogdet(C)[1]
-
-    Y = []
-
-    for i in range(X.shape[1]):
-        x = X[:, i:i + 1]
-        res = const + -0.5 * numpy.dot((x - mu).T, numpy.dot(P, (x - mu)))
-        Y.append(res)
-    return numpy.array(Y).ravel()
+def ML_GAU(D):
+    mu = mcol(D.mean(1))
+    sigma = np.dot((D - mu), (D - mu).T) / D.shape[1]
+    return mu, sigma
 
 
-def loglikelihood(XND, m_ML, C_ML):
-    return logpdf_GAU_ND(XND, m_ML, C_ML).sum()
+def logpdf_GAU_ND(D, mu, sigma):
+    P = np.linalg.inv(sigma)
+    C_F = 0.5 * D.shape[0] * np.log(2 * np.pi)
+    c2 = 0.5 * np.linalg.slogdet(P)[1]
+    c3 = 0.5 * (np.dot(P, (D - mu)) * (D - mu)).sum(0)
+    return - C_F + c2 - c3
 
+    
+def compute_PCA(D,m):
+    mu = mcol(D.mean(1))
+    #covariance matrix
+    C = np.dot((D - mu), (D - mu).T) / D.shape[1]
+    #D.shape give us the number of value (n*m)
+    s, U = np.linalg.eigh(C)
+    U, s, Vh = np.linalg.svd(C)
+    P = U[:,0:m]
 
-def likelihood(XND, m_ML, C_ML):
-    return numpy.exp(loglikelihood(XND, m_ML, C_ML))
+    
+    return P

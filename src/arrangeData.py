@@ -55,12 +55,13 @@ DTE, LTE = load_data("..\Dataset\Test.txt")
 #--------------------------------------------------------
 #---------------------z-normalize------------------------
 #--------------------------------------------------------
-def z_norm(D):
-    mu_D = numpy.mean(D, axis=1) # mean of each column
-    sigma_D = numpy.std(D, axis=1) #std dev of each column
+def z_norm(D, mu=[], sigma=[]):
+    if mu == [] or sigma == []:
+        mu = numpy.mean(D, axis=1) # mean of each column
+        sigma = numpy.std(D, axis=1) #std dev of each column
 
-    z_norm_D = (D - mcol(mu_D)) / mcol(sigma_D)
-    return z_norm_D
+    z_norm_D = (D - mcol(mu)) / mcol(sigma)
+    return z_norm_D, mu, sigma
 #D_norm = z_norm(D) 
 
 #--------------------------------------------------------
