@@ -1,7 +1,11 @@
 import arrangeData
 # import plotter 
+import validator
 import test_models
 import PCA
+
+import MVG
+import log_reg
 #----------------------------------------------------------------
 #-------------------Load data------------------------------------
 #----------------------------------------------------------------
@@ -62,7 +66,7 @@ PCA.show_PCA_result()
 #----------------------------------------------------------------
 
 #-------------RAW Features, no PCA, K = 5------------------------
-
+'''
 
 def gaussian_classifiers(D, L):
     options = {"m": None, #No PCA
@@ -90,7 +94,7 @@ gaussian_classifiers(D, L)
 
 
 
-
+'''
 
 #-------------z-normed features, no PCA, K = 5------------------------
 #gaussian_classifiers(D_z_norm, L)
@@ -139,4 +143,28 @@ def gaussian_classifiers_with_gaussianization(D, L):
             print(options)
             test_models.test_gauss_classifiers(D, L, options)
 """
-#-----------------------invoke MVG --------------------------
+
+#----------------------------------------------------------------
+#----------------------Logistic Regression-----------------------
+#----------------------------------------------------------------
+
+
+def logistic_regression(D, L):
+    options = {"m": None,
+               "gaussianization": "yes",
+               "K": 5,
+               "pT": 0.5,
+               "pi": 0.5,
+               "costs": (1, 1),
+               "l": 0}
+    
+    for options["gaussianization"] in ["yes"]:
+        print("")
+        for options["pi"] in [0.5, 0.1, 0.9]:
+            print("")
+            for options["pT"] in [0.5, 0.1, 0.9]:
+                print(options)
+                test_models.test_logistic_regression(D, L, options)
+
+
+logistic_regression(D,L)

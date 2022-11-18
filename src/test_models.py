@@ -1,7 +1,8 @@
 
-import MVG
 import validator
 
+import MVG
+import log_reg
 #-------------------------------------------------------------------------------#
 #--------------------------------TEST MODELS------------------------------------#
 #-------------------------------------------------------------------------------#
@@ -32,4 +33,14 @@ def test_gauss_classifiers(D, L, options):
     print("Naive Bayes - tied: %.3f" % min_DCF)
     print("")
 
+#----------------------------------TEST LogReg-------------------------------------#
+
+def test_logistic_regression(D, L, options):
+    l = options["l"]
+    pT = options["pT"]
+    lr = log_reg.LogRegClassifier(l, pT)
+    v = validator.CrossValidator(lr, D, L)
+    min_DCF, _, _ =v.kfold(options)
+    print("Logistic regression: %.3f" % min_DCF)
+    return min_DCF
 
