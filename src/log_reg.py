@@ -46,8 +46,3 @@ class LogRegClassifier:
         STE = numpy.dot(self.w.T, DTE) + self.b - numpy.log(self.nT/self.nF) #comment for score cal
         return STE
     
-    #not needed for the report
-    def classify(self, DTE):
-        STE = numpy.dot(self.w.T, DTE) + self.b
-        predictedLabels = STE > 0
-        return predictedLabels

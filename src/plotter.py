@@ -65,7 +65,7 @@ def plot_lambda_minDCF(D, L):
 
     
     options["normalization"] = "no"
-    options["gaussianization"] = "yes"
+    options["gaussianization"] = "no"
     for options["pi"] in pis:
         print("")
         for options["l"] in lambdas:

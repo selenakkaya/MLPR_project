@@ -3,6 +3,7 @@ import validator
 
 import MVG
 import log_reg
+import SVM
 #-------------------------------------------------------------------------------#
 #--------------------------------TEST MODELS------------------------------------#
 #-------------------------------------------------------------------------------#
@@ -44,3 +45,11 @@ def test_logistic_regression(D, L, options):
     print("Logistic regression: %.3f" % min_DCF)
     return min_DCF
 
+#----------------------------------TEST SVM-------------------------------------#
+
+def test_SVM(D, L, options):
+    s = SVM.SupportVectorMachines(options["C"], options["mode"], options["pT"], gamma=options["gamma"])
+    v = validator.CrossValidator(s, D, L)
+    min_DCF, _, _ =v.kfold(options)
+    print("SVM: %.3f" % min_DCF)
+    return min_DCF

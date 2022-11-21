@@ -1,3 +1,6 @@
+import numpy as np
+
+
 import arrangeData
 import plotter 
 import validator
@@ -6,6 +9,7 @@ import PCA
 
 import MVG
 import log_reg
+import SVM
 #----------------------------------------------------------------
 #-------------------Load data------------------------------------
 #----------------------------------------------------------------
@@ -180,4 +184,32 @@ def logistic_regression_normalized(D, L):
 #logistic_regression_normalized(D,L)
 
 #-------------------plot lambda - minDCF ----------------------------------------------#
-plotter.plot_lambda_minDCF(D, L)
+#plotter.plot_lambda_minDCF(D, L)
+
+
+#----------------------------------------------------------------
+#-----------------------------SVM--------------------------------
+#----------------------------------------------------------------
+
+def SVM(D, L):
+    options = {"m": None,
+               "gaussianization": "no",
+               "normalization" : "no",
+               "K": 5,
+               "pT": 0.5,
+               "pi": 0.5,
+               "costs": (1, 1),
+               "mode": "linear",
+               "C": 1,
+               "gamma": np.exp(-3)}
+    
+    for options["mode"] in ["linear", "Quadratic", "RBF" ]:
+        for options["gamma"] in [0.1, 1.0, 10.0]:
+            for options["C"] in [0.01, 0.1, 1.0, 10.0]:
+                for options["pi"] in [0.5, 0.1, 0.9]:
+                    print("")
+                    for options["pT"] in [0.5, 0.1, 0.9]:
+                        print(options)
+                        test_models.test_SVM(D, L, options)
+
+SVM(D, L)
