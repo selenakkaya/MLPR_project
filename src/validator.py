@@ -90,7 +90,7 @@ def compute_normalized_emp_bayes(CM, pi, cfn, cfp):
     return emp_bayes_risk / min(pi*cfn, (1-pi)*cfp)
 
 def compute_act_DCF(scores, labels, pi, cfn, cfp, threshold=None):
-    predictions = assign_labels(scores, pi, cfn, cfp, threshold)
+    predictions = assign_labels(scores, pi, cfn, cfp, threshold=threshold)
     CM = compute_confusion_matrix(predictions, labels)
     return compute_normalized_emp_bayes(CM, pi, cfn, cfp)
 

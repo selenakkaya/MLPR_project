@@ -1,5 +1,5 @@
 import arrangeData
-# import plotter 
+import plotter 
 import validator
 import test_models
 import PCA
@@ -129,19 +129,6 @@ def gaussian_classifiers_gaussian_classifiers_with_gaussianization_PCA_11(D, L):
 
 
 
-def gaussian_classifiers_with_gaussianization(D, L):
-    options = {"m": None, #No PCA
-               "gaussianization": "no",
-               "K": 3, 
-               "pi": 0.5, 
-               "costs": (1, 1)}
-
-  
-    options["gaussianization"] = "yes"
-    for options["m"] in [None ,7, 6, 5]:
-        for options["pi"] in [0.5, 0.1, 0.9]:
-            print(options)
-            test_models.test_gauss_classifiers(D, L, options)
 """
 
 #----------------------------------------------------------------
@@ -151,20 +138,46 @@ def gaussian_classifiers_with_gaussianization(D, L):
 
 def logistic_regression(D, L):
     options = {"m": None,
-               "gaussianization": "yes",
+               "gaussianization": "no",
+               "normalization" : "no",
                "K": 5,
                "pT": 0.5,
                "pi": 0.5,
                "costs": (1, 1),
                "l": 0}
     
-    for options["gaussianization"] in ["yes"]:
-        print("")
-        for options["pi"] in [0.5, 0.1, 0.9]:
+    for options["gaussianization"] in ["no", "yes"]:
+        for options["m"] in [None, 11, 10]:
             print("")
-            for options["pT"] in [0.5, 0.1, 0.9]:
-                print(options)
-                test_models.test_logistic_regression(D, L, options)
+            for options["pi"] in [0.5, 0.1, 0.9]:
+                print("")
+                for options["pT"] in [0.5, 0.1, 0.9]:
+                    print(options)
+                    test_models.test_logistic_regression(D, L, options)
+
+def logistic_regression_normalized(D, L):
+    options = {"m": None,
+               "gaussianization": "no",
+               "normalization" : "no",
+               "K": 5,
+               "pT": 0.5,
+               "pi": 0.5,
+               "costs": (1, 1),
+               "l": 0}
+    for options["m"] in [None, 11, 10]:  
+        for options["gaussianization"] in ["no", "yes"]:
+            if options["gaussianization"] == "no":
+                for options ["normalization"] in ["no", "yes"]:
+                    print("")
+                    for options["pi"] in [0.5, 0.1, 0.9]:
+                        print("")
+                        for options["pT"] in [0.5, 0.1, 0.9]:
+                            print(options)
+                            test_models.test_logistic_regression(D, L, options)
 
 
-logistic_regression(D,L)
+#logistic_regression(D,L)
+#logistic_regression_normalized(D,L)
+
+#-------------------plot lambda - minDCF ----------------------------------------------#
+plotter.plot_lambda_minDCF(D, L)
