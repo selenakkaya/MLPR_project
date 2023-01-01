@@ -48,9 +48,7 @@ def load_data(file):
     L = numpy.array(L, dtype=numpy.int32)
     return D, L
 
-DTR, LTR = load_data("..\Dataset\Train.txt")
 
-DTE, LTE = load_data("..\Dataset\Test.txt")
 
 #--------------------------------------------------------
 #---------------------z-normalize------------------------

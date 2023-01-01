@@ -51,21 +51,21 @@ def show_heatmap(D, title, color):
 """
 def plot_lambda_minDCF(D, L):
     options = {"m": None,
-               "gaussianization": "yes",
+               "gaussianization": "no",
                "normalization" : "no",
-               "K": 5,
+               "K": 3,
                "pT": 0.5,
                "pi": 0.5,
                "costs": (1, 1),
-               "l": 0}
+               "l": 1e-3}
     
     pis = [0.5, 0.1, 0.9]
-    lambdas = [0, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1e1]
+    lambdas = [1e-5, 1e-3, 1e-1, 1e1, 1e3, 1e5]
     min_DCFs = {pi: [] for pi in pis}
 
     
     options["normalization"] = "no"
-    options["gaussianization"] = "no"
+    options["gaussianization"] ="no"
     for options["pi"] in pis:
         print("")
         for options["l"] in lambdas:
@@ -83,3 +83,39 @@ def plot_lambda_minDCF(D, L):
     plt.ylabel("minDCF")
     plt.savefig("lambda-minDCF_Plots/lambda_minDCF" + fn + ".jpeg")
 
+
+
+
+######## Gaussianized plot for LR ########
+def plot_lambda_minDCF_gau(D, L):
+    options = {"m": None,
+               "gaussianization": "no",
+               "normalization" : "no",
+               "K": 3,
+               "pT": 0.5,
+               "pi": 0.5,
+               "costs": (1, 1),
+               "l": 1e-3}
+    
+    pis = [0.5, 0.1, 0.9]
+    lambdas = [1e-5, 1e-3, 1e-1, 1e1, 1e3, 1e5]
+    min_DCFs = {pi: [] for pi in pis}
+
+    
+    options["gaussianization"] ="yes"
+    for options["pi"] in pis:
+        print("")
+        for options["l"] in lambdas:
+            print(options)
+            min_DCF = test_models.test_logistic_regression(D, L, options)
+            min_DCFs[options["pi"]].append(min_DCF)
+
+    fn = "_GAU_"
+    plt.figure()
+    for pi in pis:
+        plt.plot(lambdas, min_DCFs[pi], label='prior='+str(pi))
+    plt.legend()
+    plt.semilogx()
+    plt.xlabel("λ")
+    plt.ylabel("minDCF")
+    plt.savefig("lambda-minDCF_Plots/lambda_minDCF" + fn + ".jpeg")
