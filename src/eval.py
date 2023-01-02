@@ -4,6 +4,8 @@ import validator
 import MVG
 import log_reg
 import SVM
+import GMM
+
 #-------------------------------------------------------------------------------#
 #--------------------------------TEST MODELS------------------------------------#
 #-------------------------------------------------------------------------------#
@@ -52,4 +54,15 @@ def test_SVM(D, L, options):
     v = validator.CrossValidator(s, D, L)
     min_DCF, _, _ =v.kfold(options)
     print("SVM: %.3f" % min_DCF)
+    return min_DCF
+
+#----------------------------------TEST GMM-------------------------------------#
+
+
+
+def test_GMM(D, L, options):
+    g = GMM.GMM_classifier(options["n"], options["mode"], options["tiedness"])
+    v = validator.CrossValidator(g, D, L)
+    min_DCF, _, _ =v.kfold(options)
+    print("GMM: %.3f" % min_DCF)
     return min_DCF

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import arrangeData
 import numpy
 
-import test_models
+import eval
 
 K=3
 
@@ -73,7 +73,7 @@ def plot_lambda_minDCF(D, L):
         print("")
         for options["l"] in lambdas:
             print(options)
-            min_DCF = test_models.test_logistic_regression(D, L, options)
+            min_DCF = eval.test_logistic_regression(D, L, options)
             min_DCFs[options["pi"]].append(min_DCF)
 
     fn = "_RAW_"
@@ -110,7 +110,7 @@ def plot_lambda_minDCF_gau(D, L):
         print("")
         for options["l"] in lambdas:
             print(options)
-            min_DCF = test_models.test_logistic_regression(D, L, options)
+            min_DCF = eval.test_logistic_regression(D, L, options)
             min_DCFs[options["pi"]].append(min_DCF)
 
     fn = "_GAU_"
@@ -146,7 +146,7 @@ def plot_C_minDCF(D, L):
         print("")
         for options["C"] in C:
             print(options)
-            min_DCF = test_models.test_SVM(D, L, options)
+            min_DCF = eval.test_SVM(D, L, options)
             min_DCFs[options["pi"]].append(min_DCF)
     plt.figure()
     for pi in pis:

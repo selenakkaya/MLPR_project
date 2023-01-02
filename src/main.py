@@ -4,12 +4,14 @@ import numpy as np
 import arrangeData
 import plotter 
 import validator
-import test_models
+import eval
 import PCA
 
 import MVG
 import log_reg
 import SVM
+import GMM
+
 #----------------------------------------------------------------
 #-------------------Load data------------------------------------
 #----------------------------------------------------------------
@@ -81,14 +83,14 @@ def gaussian_classifiers(D, L):
         for options["m"] in [None, 7, 6]:
             for options["pi"] in [0.5, 0.1, 0.9]:
                 print(options)
-                test_models.test_gauss_classifiers(D, L, options)
+                eval.test_gauss_classifiers(D, L, options)
 
     options["normalization"] = "yes" 
     options["gaussianization"] ="no"
     for options["m"] in [None, 7,6]:
         for options["pi"] in [0.5, 0.1, 0.9]:
             print(options)
-            test_models.test_gauss_classifiers(D, L, options)
+            eval.test_gauss_classifiers(D, L, options)
 
 gaussian_classifiers(D, L)
 
@@ -111,7 +113,7 @@ def gaussian_classifiers_PCA_11(D, L):
     for options["m"] in [11 ,10]:
         for options["pi"] in [0.5, 0.1, 0.9]:
             print(options)
-            test_models.test_gauss_classifiers(D, L, options)
+            eval.test_gauss_classifiers(D, L, options)
 
 
 def gaussian_classifiers_gaussian_classifiers_with_gaussianization_PCA_11(D, L):
@@ -125,7 +127,7 @@ def gaussian_classifiers_gaussian_classifiers_with_gaussianization_PCA_11(D, L):
     for options["m"] in [11 ,10]:
         for options["pi"] in [0.5, 0.1, 0.9]:
             print(options)
-            test_models.test_gauss_classifiers(D, L, options)
+            eval.test_gauss_classifiers(D, L, options)
 
 
 
@@ -153,7 +155,7 @@ def logistic_regression(D, L):
                 print("")
                 for options["pT"] in [0.5, 0.1, 0.9]:
                     print(options)
-                    test_models.test_logistic_regression(D, L, options)
+                    eval.test_logistic_regression(D, L, options)
 
 def logistic_regression_normalized(D, L):
     options = {"m": None,
@@ -173,7 +175,7 @@ def logistic_regression_normalized(D, L):
                         print("")
                         for options["pT"] in [0.5, 0.1, 0.9]:
                             print(options)
-                            test_models.test_logistic_regression(D, L, options)
+                            eval.test_logistic_regression(D, L, options)
 
 
 logistic_regression(D,L)
@@ -204,7 +206,30 @@ def SVM(D, L):
         for options["pi"] in [0.5, 0.1, 0.9]:
             print("")
             print(options)
-            test_models.test_SVM(D, L, options)
+            eval.test_SVM(D, L, options)
 
-SVM(D, L)
+#SVM(D, L)
 #plotter.plot_C_minDCF(D, L) #change pT =0.1, 0.9 and take the plots
+
+#----------------------------------------------------------------
+#-----------------------------GMM--------------------------------
+#----------------------------------------------------------------
+
+
+def GMM(D, L):
+    options = {"m": None,
+               "gaussianization": "yes",
+               "normalization" : "no",
+               "K": K,
+               "pi": 0.5,
+               "costs": (1, 1),
+               "mode": "full",
+               "tiedness": "untied",
+               "n": 3}
+    for options["n"] in [2, 3]:
+        for options["mode"] in ["full", "naive"]:
+            for options["tiedness"] in ["untied", "tied"]:
+                print(options)
+                eval.test_GMM(D, L, options)
+
+GMM(D,L)
