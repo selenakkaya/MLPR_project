@@ -4,6 +4,9 @@ import arrangeData
 import numpy
 
 import test_models
+
+K=3
+
 """
 D_gauss = arrangeData.gaussianization_f(arrangeData.DTR)
 
@@ -119,3 +122,39 @@ def plot_lambda_minDCF_gau(D, L):
     plt.xlabel("λ")
     plt.ylabel("minDCF")
     plt.savefig("lambda-minDCF_Plots/lambda_minDCF" + fn + ".jpeg")
+
+
+
+############### For SVM ###############
+
+def plot_C_minDCF(D, L):
+    options = {"m": None,
+               "gaussianization": "no",
+               "normalization" : "no",
+               "gamma" : 1,
+               "K": K,
+               "pT": 0.5,
+               "pi": 0.5,
+               "costs": (1, 1),
+               "mode": "Linear",
+               "C": 1}
+    
+    pis = [0.5, 0.1, 0.9]
+    C = [1e-4, 1e-3,  1e-2, 1e-1, 1]
+    min_DCFs = {pi: [] for pi in pis}
+    for options["pi"] in pis:
+        print("")
+        for options["C"] in C:
+            print(options)
+            min_DCF = test_models.test_SVM(D, L, options)
+            min_DCFs[options["pi"]].append(min_DCF)
+    plt.figure()
+    for pi in pis:
+        plt.plot(C, min_DCFs[pi], label='prior='+str(pi))
+    plt.legend()
+    plt.semilogx()
+    plt.xlabel("C")
+    plt.ylabel("minDCF")
+    plt.savefig("C_minDCF_SVM.jpeg")
+
+

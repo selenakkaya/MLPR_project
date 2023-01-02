@@ -10,7 +10,7 @@ row = arrangeData.mrow
 
 
 class SupportVectorMachines:
-    def __init__(self, C, mode, pT, gamma=1, d=2, K=1):
+    def __init__(self, C, mode, pT, gamma, d=2, K=1.0):
         self.C = C
         self.mode = mode
         self.pT = pT
@@ -29,14 +29,16 @@ class SupportVectorMachines:
         nT = DTR1.shape[1]
         emp_prior_F = (nF / DTR.shape[1])
         emp_prior_T =  (nT / DTR.shape[1])
-        Cf = self.C * self.pT / emp_prior_F
-        Ct = self.C * self.pT / emp_prior_T
+        Cf = self.C * self.pT 
+        Cf = Cf / emp_prior_F
+        Ct = self.C * self.pT 
+        Ct = Ct / emp_prior_T
     
         Z = numpy.zeros(LTR.shape)
         Z[LTR == 0] = -1
         Z[LTR == 1] = 1
         
-        if self.mode == "linear":
+        if self.mode == "Linear":
             H = numpy.dot(DTRext.T, DTRext)
             H = column(Z) * row(Z) * H
         elif self.mode == "Quadratic":
@@ -59,8 +61,8 @@ class SupportVectorMachines:
         alpha_star, x, y = scipy.optimize.fmin_l_bfgs_b(
             self._LDual, 
             numpy.zeros(DTR.shape[1]),
-            #bounds = [(0, self.C)] * DTR.shape[1],
-            bounds = bounds,
+            bounds = [(0, self.C)] * DTR.shape[1], #no class balancing
+            #bounds = bounds,
             factr = 1e7,
             maxiter = 100000,
             maxfun = 100000

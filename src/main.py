@@ -13,6 +13,7 @@ import SVM
 #----------------------------------------------------------------
 #-------------------Load data------------------------------------
 #----------------------------------------------------------------
+K=3
 D, L = arrangeData.load_data("..\Dataset-pulsar\Train.txt")
 
 DTE, LTE = arrangeData.load_data("..\Dataset-pulsar\Test.txt")
@@ -179,34 +180,31 @@ logistic_regression(D,L)
 #logistic_regression_normalized(D,L)
 """
 #-------------------plot lambda - minDCF ----------------------------------------------#
-plotter.plot_lambda_minDCF(D, L)
-plotter.plot_lambda_minDCF_gau(D, L)
+#plotter.plot_lambda_minDCF(D, L)
+#plotter.plot_lambda_minDCF_gau(D, L)
 
 
 #----------------------------------------------------------------
 #-----------------------------SVM--------------------------------
 #----------------------------------------------------------------
-'''
+
 def SVM(D, L):
     options = {"m": None,
                "gaussianization": "no",
-               "normalization" : "no",
-               "K": 5,
+               "normalization" : "yes",
+               "K": K,
+               "C":1e-1,
                "pT": 0.5,
                "pi": 0.5,
                "costs": (1, 1),
-               "mode": "linear",
-               "C": 1,
+               "mode": "Linear",
                "gamma": np.exp(-3)}
     
-    for options["mode"] in ["linear", "Quadratic", "RBF" ]:
-        for options["gamma"] in [0.1, 1.0, 10.0]:
-            for options["C"] in [0.01, 0.1, 1.0, 10.0]:
-                for options["pi"] in [0.5, 0.1, 0.9]:
-                    print("")
-                    for options["pT"] in [0.5, 0.1, 0.9]:
-                        print(options)
-                        test_models.test_SVM(D, L, options)
+    for options["mode"] in ["RBF","Quadratic","Linear"]:
+        for options["pi"] in [0.5, 0.1, 0.9]:
+            print("")
+            print(options)
+            test_models.test_SVM(D, L, options)
 
-#SVM(D, L)
-'''
+SVM(D, L)
+#plotter.plot_C_minDCF(D, L) #change pT =0.1, 0.9 and take the plots
