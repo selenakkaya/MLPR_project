@@ -6,6 +6,8 @@ import GMM
 from validator import compute_min_DCF
 
 def test():
+    
+
     DTR, LTR = ar.load_data("..\Dataset-pulsar\Train.txt")
     DTE, LTE = ar.load_data("..\Dataset-pulsar\Test.txt")
     

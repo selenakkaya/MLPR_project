@@ -1,36 +1,37 @@
+import numpy as np
+import pylab
+
 import arrangeData as ar
 import MVG 
-import log_reg
+import log_reg as LR
 import SVM
 import GMM
-from validator import compute_min_DCF
+import validator
 
-K=3
-
-DTR, LTR = ar.load_data("..\Dataset-pulsar\Train.txt")
-DTE, LTE = ar.load_data("..\Dataset-pulsar\Test.txt")
- 
-column = ar.mcol
-row = ar.mrow 
-
+import matplotlib.pyplot as plt
+"""
+def bayesErrorPlot(dcf, mindcf, effPriorLogOdds, model):
+    plt.figure()
+    plt.plot(effPriorLogOdds, dcf, label='act DCF', color='r')
+    plt.plot(effPriorLogOdds, mindcf, label='min DCF', color='b', linestyle="--")
+    plt.xlim([min(effPriorLogOdds), max(effPriorLogOdds)])
+    plt.legend([model + " - act DCF", model+" - min DCF"])
+    plt.xlabel("prior log-odds")
+    plt.ylabel("DCF")
+    return
+"""
 def calibrate():
+    validator.bayes_error_plot()
 
-    #-------------------------------------------------------------------------
-    #----------------------------------MVG------------------------------------
-    #-------------------------------------------------------------------------
+    K=3
 
-    options = {"m": None, #No PCA
-               "gaussianization": "no",
-               "K": K, 
-               "pi": 0.5, 
-               "costs": (1, 1)}
-    gc = gaucl.GaussianClassifier("full covariance", "tied")
-    v = xvalidator.CrossValidator(gc, D, L)
-    min_DCF, scores, labels = v.kfold(options)
-    #xvalidator.plot_bayes_error(scores, labels, "MVG")
+    column = ar.mcol
+    row = ar.mrow 
+
     
-    lr = logreg.LogRegClassifier(0, 0.5)
-    v = xvalidator.CrossValidator(lr, row(scores), labels)
-    min_DCF, scores, labels = v.kfold(options)
-    xvalidator.plot_bayes_error(scores, labels, "MVGcalibrated")
+    D, L = ar.load_data("..\Dataset-pulsar\Train.txt")
+    DTE, LTE = ar.load_data("..\Dataset-pulsar\Test.txt")
 
+   
+
+calibrate()
