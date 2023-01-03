@@ -32,8 +32,8 @@ def calibrate():
     DTE, LTE = ar.load_data("..\Dataset-pulsar\Test.txt")
 
     options = {"m": 7, #No PCA
-               "gaussianization": "yes",
-               "normalization": "no",
+               "gaussianization": "no",
+               "normalization": "yes",
                "K": K, 
                "pi": 0.5, 
                "costs": (1, 1)}
@@ -54,13 +54,13 @@ def calibrate():
         act_y.append(validator.compute_act_DCF(scores, labels, pi, 1, 1))
     pylab.title("MVG min DCF")
     pylab.figure()
-    pylab.plot(pis, act_y, color="c")
-    pylab.plot(pis, min_y, color="m")
+    pylab.plot(pis, min_y, color="c")
+    pylab.plot(pis, act_y, color="m")
     pylab.ylim([0,3.1])
     pylab.xlim([-3,3])
-    pylab.legend(['min_DCF','act_DCF',])
-    pylab.xlabel("FPR")
-    pylab.ylabel("TPR")
+    pylab.legend(['min_DCF Tied-cov','act_DCF Tied-cov',])
+    pylab.xlabel("prior log-odds")
+    pylab.ylabel("DCF")
 
     pylab.savefig('CalibrationPics\%s.jpeg' % 'MVG_min_y')
 
