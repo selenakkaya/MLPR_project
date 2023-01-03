@@ -64,20 +64,20 @@ class CrossValidator:
 
 
         
-def assign_labels(scores, pi, cfn, cfp, threshold=None):
+def assign_labels(scores, pi, cfn, cfp, threshold=None): #ok
     if threshold is None:
         threshold = -numpy.log(pi*cfn) + numpy.log((1-pi)*cfp)
     
     predictions = scores > threshold
     return numpy.int32(predictions)
 
-def compute_FNR(CM):
-    return CM[0][1] /(CM[0][1] + CM[1][1] )
+def compute_FNR(CM): #ok
+    return CM[0,1] / (CM[0,1]+CM[1,1])
 
-def compute_FPR(CM):
-    return  CM[1][0] /(CM[0][0] + CM[1][0] )
+def compute_FPR(CM): #ok
+    return  CM[1,0] / (CM[0,0]+CM[1,0])
 
-def compute_confusion_matrix(predictions, labels):
+def compute_confusion_matrix(predictions, labels): #ok
     C = numpy.zeros((2, 2))
     C[0, 0] = ((predictions == 0) * (labels == 0)).sum()
     C[0, 1] = ((predictions == 0) * (labels == 1)).sum()
@@ -85,48 +85,30 @@ def compute_confusion_matrix(predictions, labels):
     C[1, 1] = ((predictions == 1) * (labels == 1)).sum()
     return C
 
-def compute_optimal_bayes_decision(loglikelihood_ratios, pi, cfn, cfp):
-    threshold= - numpy.log((pi*cfn)/((1-pi)*cfp))
-    return(1*(loglikelihood_ratios>threshold))
+def compute_normalized_emp_bayes(CM, pi, cfn, cfp): #ok
+    emp_bayes = compute_emp_bayes(CM, pi, cfn, cfp)
+    return emp_bayes / min(pi*cfn, (1-pi)*cfp)
 
 
-def compute_emp_bayes(CM, pi, cfn, cfp):
-    fnr = CM[0, 1] / (CM[0, 1] + CM[1, 1])
-    fpr = CM[1, 0] / (CM[0, 0] + CM[1, 0])
+def compute_emp_bayes(CM, pi, cfn, cfp): #ok
+    fnr = compute_FNR(CM)
+    fpr = compute_FPR(CM)
     risk = pi*cfn*fnr + (1-pi)*cfp*fpr
     return risk
 
-def compute_normalized_emp_bayes(CM, pi, cfn, cfp):
-    risk = compute_emp_bayes(CM, pi, cfn, cfp)
-    return risk / min(pi*cfn, (1-pi)*cfp)
 
-def compute_act_DCF(llrs, labels, pi, cfn, cfp):
-    predicted_labels=compute_optimal_bayes_decision(llrs, pi, cfn, cfp)
-    conf_matrix=compute_confusion_matrix(predicted_labels, labels)
-    br= compute_emp_bayes(conf_matrix, pi, cfn, cfp) #bayes risk
-    nbr= compute_normalized_emp_bayes(br, pi, cfn, cfp) # normalized bayes risk -> actual DCF
+def compute_act_DCF(scores, labels, pi, cfn, cfp, threshold=None): #ok
+    predictions = assign_labels(scores, pi, cfn, cfp, threshold=threshold)
+    CM = compute_confusion_matrix(predictions, labels)
+    return compute_normalized_emp_bayes(CM, pi, cfn, cfp)
 
-    return nbr
-
-def compute_min_DCF(llrs, labels, pi, cfn, cfp):
-    llrs_sorted= numpy.sort(llrs) #sorted logLikelihood ratios
-    DCFs=[]
-    FPRs=[]
-    TPRs=[]
-
-    for i in llrs_sorted:
-        predicted_label=1*(llrs>t)
-        conf_matrix=compute_confusion_matrix(predicted_label, labels)
-        br= compute_emp_bayes(conf_matrix, pi, cfn, cfp)
-        nbr= compute_normalized_emp_bayes(br, pi, cfn, cfp)
-        DCFs.append(nbr)
-
-        FPRs.append(compute_FPR(conf_matrix))
-        TPRs.append(1-compute_FNR(conf_matrix))
-
-    DCF_min =min(DCFs)
-
-    index_t = DCFs.index(DCF_min)
+def compute_min_DCF(scores, labels, pi, cfn, cfp): #ok
+    thresholds = numpy.array(scores)
+    thresholds.sort()
     
-    return (DCF_min, FPRs, TPRs, llrs_sorted[index_t])
+    numpy.concatenate([numpy.array([-numpy.inf]), thresholds, numpy.array([numpy.inf]) ])
+    dcf_list = []
+    for t in thresholds:
+        dcf_list.append(compute_act_DCF(scores, labels, pi, cfn, cfp, threshold=t))
+    return numpy.array(dcf_list).min()
     
