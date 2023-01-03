@@ -43,6 +43,6 @@ class LogRegClassifier:
         return wrongPredictions, errorRate
     
     def compute_scores(self, DTE):
-        STE = numpy.dot(self.w.T, DTE) + self.b - numpy.log(self.nT/self.nF) #comment for score cal
+        STE = numpy.dot(self.w.T, DTE) + self.b - numpy.log(self.nT/self.nF) 
         return STE
     

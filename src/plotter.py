@@ -5,7 +5,7 @@ import numpy
 
 import eval
 
-K=3
+K=5
 
 """
 D_gauss = arrangeData.gaussianization_f(arrangeData.DTR)

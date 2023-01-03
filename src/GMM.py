@@ -10,20 +10,18 @@ mrow = arrangeData.mrow
 class GMM_classifier:
     def __init__(self, n, mode, tiedness):
         self.n = n 
-        self.gmm_Interference = None
-        self.gmm_Pulsar = None
+        self.gmm_0 = None
+        self.gmm_1 = None
         self.mode = mode
         self.tiedness = tiedness
     
     def train(self, D, L):
-
-        
-        self.gmm_Interference = self._LBG(D[:, L==0], self.n)
-        self.gmm_Pulsar = self._LBG(D[:, L==1], self.n)
+        self.gmm_0 = self._LBG(D[:, L==0], self.n)
+        self.gmm_1 = self._LBG(D[:, L==1], self.n)
     
     def compute_lls(self, DTE):
-        ll0 = self._GMM_ll_per_sample(DTE, self.gmm_Interference)
-        ll1 = self._GMM_ll_per_sample(DTE, self.gmm_Pulsar)
+        ll0 = self._GMM_ll_per_sample(DTE, self.gmm_0)
+        ll1 = self._GMM_ll_per_sample(DTE, self.gmm_1)
         return ll0, ll1
     
     def compute_scores(self, DTE):
@@ -106,15 +104,13 @@ class GMM_classifier:
                 w = Z/N
                 mu = mcol(F/Z)
                 sigma = S/Z - numpy.dot(mu, mu.T)
-                #constraint
                 U, s, _ = numpy.linalg.svd(sigma)
                 s[s<psi] = psi
                 sigma = numpy.dot(U, mcol(s)*U.T)
                 
                 gmm_new.append((w, mu, sigma))
             gmm = gmm_new
-            #print(ll_new)
-        #print(ll_new-ll_old)
+
         return gmm
     
     def _GMM_EM_diag(self, X, gmm):
@@ -146,15 +142,13 @@ class GMM_classifier:
                 #diagonalization
                 sigma = sigma * numpy.eye(sigma.shape[0])
                 
-                #constraint
                 U, s, _ = numpy.linalg.svd(sigma)
                 s[s<psi] = psi
                 sigma = numpy.dot(U, mcol(s)*U.T)
                 
                 gmm_new.append((w, mu, sigma))
             gmm = gmm_new
-            #print(ll_new)
-        #print(ll_new-ll_old)
+
         return gmm
     
     def _GMM_EM_tied(self, X, gmm):
@@ -193,8 +187,6 @@ class GMM_classifier:
             s[s<psi] = psi
             sigma = numpy.dot(U, mcol(s)*U.T)
             gmm = gmm_new
-            #print(ll_new)
-        #print(ll_new-ll_old)
         return gmm
     
     def _GMM_EM_diag_tied(self, X, gmm):
@@ -235,6 +227,4 @@ class GMM_classifier:
             s[s<psi] = psi
             sigma = numpy.dot(U, mcol(s)*U.T)
             gmm = gmm_new
-            #print(ll_new)
-        #print(ll_new-ll_old)
         return gmm

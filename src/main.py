@@ -15,10 +15,9 @@ import GMM
 #----------------------------------------------------------------
 #-------------------Load data------------------------------------
 #----------------------------------------------------------------
-K=3
-D, L = arrangeData.load_data("..\Dataset-pulsar\Train.txt")
-
-DTE, LTE = arrangeData.load_data("..\Dataset-pulsar\Test.txt")
+K=5
+D, L = arrangeData.load_data("..\Dataset\Train.txt")
+DTE, LTE = arrangeData.load_data("..\Dataset\Test.txt")
 
 #----------------------------------------------------------------
 #-------------------Z_Normalization------------------------------
@@ -30,7 +29,6 @@ D_norm = arrangeData.z_norm(D)
 #----------------------Load Data----------------------------------
 
 #D_z_norm, mu, sigma = arrangeData.z_norm(D)
-
 #D_gauss = arrangeData.gaussianization_f(D)
 
 
@@ -74,20 +72,20 @@ def gaussian_classifiers(D, L):
     options = {"m": None, #No PCA
                "gaussianization": "no",
                 "normalization" : "no",
-                "K": 3, 
+                "K": K, 
                 "pi": 0.5, 
                 "costs": (1, 1)}
 
     options["normalization"] = "no" 
     for options["gaussianization"] in ["no", "yes"]:
-        for options["m"] in [None, 7, 6]:
+        for options["m"] in [None, 11, 10]:
             for options["pi"] in [0.5, 0.1, 0.9]:
                 print(options)
                 eval.test_gauss_classifiers(D, L, options)
 
     options["normalization"] = "yes" 
     options["gaussianization"] ="no"
-    for options["m"] in [None, 7,6]:
+    for options["m"] in [None, 11,10]:
         for options["pi"] in [0.5, 0.1, 0.9]:
             print(options)
             eval.test_gauss_classifiers(D, L, options)
@@ -105,7 +103,7 @@ gaussian_classifiers(D, L)
 def gaussian_classifiers_PCA_11(D, L):
     options = {"m": None, #No PCA
                "gaussianization": "no",
-               "K": 3, 
+               "K": K, 
                "pi": 0.5, 
                "costs": (1, 1)}
 
@@ -119,7 +117,7 @@ def gaussian_classifiers_PCA_11(D, L):
 def gaussian_classifiers_gaussian_classifiers_with_gaussianization_PCA_11(D, L):
     options = {"m": None, #No PCA
                "gaussianization": "no",
-               "K": 3, 
+               "K": K, 
                "pi": 0.5, 
                "costs": (1, 1)}
 
@@ -142,14 +140,14 @@ def logistic_regression(D, L):
     options = {"m": None,
                "gaussianization": "no",
                "normalization" : "no",
-               "K": 3,
+               "K": K,
                "pT": 0.5,
                "pi": 0.5,
                "costs": (1, 1),
                "l": 1e-4}
     
     for options["normalization"] in ["yes", "no"]:
-        for options["m"] in [None, 7,6]:
+        for options["m"] in [None, 11,10]:
             print("")
             for options["pi"] in [0.5, 0.1, 0.9]:
                 print("")
@@ -161,12 +159,12 @@ def logistic_regression_normalized(D, L):
     options = {"m": None,
                "gaussianization": "no",
                "normalization" : "no",
-               "K": 3,
+               "K": K,
                "pT": 0.5,
                "pi": 0.5,
                "costs": (1, 1),
                "l": 1e-4}
-    for options["m"] in [None, 7, 6]:  
+    for options["m"] in [None, 11, 10]:  
         for options["gaussianization"] in ["no", "yes"]:
             if options["gaussianization"] == "no":
                 for options ["normalization"] in ["no", "yes"]:

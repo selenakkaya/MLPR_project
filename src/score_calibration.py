@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 def calibrate():
 
-    K=3
+    K=5
 
     column = ar.mcol
     row = ar.mrow 
@@ -21,7 +21,7 @@ def calibrate():
     D, L = ar.load_data("..\Dataset-pulsar\Train.txt")
     DTE, LTE = ar.load_data("..\Dataset-pulsar\Test.txt")
     
-    options = {"m": 7, #No PCA
+    options = {"m": 10, #No PCA
                "gaussianization": "no",
                "normalization": "yes",
                "K": K, 
@@ -60,10 +60,10 @@ def calibrate():
     
 
     #LR
-    options = {"m": 7,
+    options = {"m": 10,
                "gaussianization": "no",
                "normalization": "yes",
-               "K": 3,
+               "K":K,
                "pT": 0.5,
                "pi": 0.5,
                "costs": (1, 1),
@@ -141,7 +141,7 @@ def calibrate():
  
     
     #GMM
-    options = {"m": 7,
+    options = {"m": 10,
                "gaussianization": "yes",
                "normalization" : "no",
                "K": K,
