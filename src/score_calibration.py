@@ -9,17 +9,7 @@ import GMM
 import validator
 
 import matplotlib.pyplot as plt
-"""
-def bayesErrorPlot(dcf, mindcf, effPriorLogOdds, model):
-    plt.figure()
-    plt.plot(effPriorLogOdds, dcf, label='act DCF', color='r')
-    plt.plot(effPriorLogOdds, mindcf, label='min DCF', color='b', linestyle="--")
-    plt.xlim([min(effPriorLogOdds), max(effPriorLogOdds)])
-    plt.legend([model + " - act DCF", model+" - min DCF"])
-    plt.xlabel("prior log-odds")
-    plt.ylabel("DCF")
-    return
-"""
+
 def calibrate():
 
     K=3
@@ -30,7 +20,7 @@ def calibrate():
     
     D, L = ar.load_data("..\Dataset-pulsar\Train.txt")
     DTE, LTE = ar.load_data("..\Dataset-pulsar\Test.txt")
-
+    
     options = {"m": 7, #No PCA
                "gaussianization": "no",
                "normalization": "yes",
@@ -41,7 +31,7 @@ def calibrate():
     v = validator.CrossValidator(gc, D, L)
     min_DCF, scores, labels = v.kfold(options)
     
-    
+    """
     #plot bayes_error
 
     pis = np.linspace(-3, 3, 21)
@@ -52,6 +42,7 @@ def calibrate():
         pi = 1.0 / (1.0 + np.exp(-p))
         min_y.append(validator.compute_min_DCF(scores, labels, pi, 1, 1))
         act_y.append(validator.compute_act_DCF(scores, labels, pi, 1, 1))
+    
     pylab.title("MVG min DCF")
     pylab.figure()
     pylab.plot(pis, min_y, color="c")
@@ -63,23 +54,27 @@ def calibrate():
     pylab.ylabel("DCF")
 
     pylab.savefig('CalibrationPics\%s.jpeg' % 'MVG_min_y')
-
-
     """
+    validator.plot_ROC(scores, labels, COLOR="y", show=False)
+
+    
 
     #LR
     options = {"m": 7,
-               "gaussianization": "yes",
-               "normalization": "no",
+               "gaussianization": "no",
+               "normalization": "yes",
                "K": 3,
                "pT": 0.5,
                "pi": 0.5,
                "costs": (1, 1),
-               "l": 0}
+               "l": 1e-06}
     lr = LR.LogRegClassifier(options["l"], options["pT"])
     v = validator.CrossValidator(lr, D, L)
-    min_DCF, scores, labels = v.kfold(options)
-        
+    min_DCF, scores1, labels1 = v.kfold(options)
+
+    validator.plot_ROC(scores1, labels1, COLOR="r",show=False)
+
+    """    
     #plot bayes_error for LR
 
     pis = np.linspace(-3, 3, 21)
@@ -88,8 +83,8 @@ def calibrate():
     
     for p in pis:
         pi = 1.0 / (1.0 + np.exp(-p))
-        min_y_LR.append(validator.compute_min_DCF(scores, labels, pi, 1, 1))
-        act_y_LR.append(validator.compute_act_DCF(scores, labels, pi, 1, 1))
+        min_y_LR.append(validator.compute_min_DCF(scores1, labels1, pi, 1, 1))
+        act_y_LR.append(validator.compute_act_DCF(scores1, labels1, pi, 1, 1))
 
     pylab.title("LR min DCF")
     pylab.figure()
@@ -141,13 +136,15 @@ def calibrate():
     pylab.savefig('CalibrationPics\%s.jpeg' % 'SVM_min_y')
 
 
-    
+
+   """    
  
     
     #GMM
-    options = {"m": None,
-               "gaussianization": "no",
-               "K": 3,
+    options = {"m": 7,
+               "gaussianization": "yes",
+               "normalization" : "no",
+               "K": K,
                "pi": 0.5,
                "costs": (1, 1),
                "mode": "full",
@@ -156,7 +153,10 @@ def calibrate():
     g = GMM.GMM_classifier(options["n"], options["mode"], options["tiedness"])
     v3 = validator.CrossValidator(g, D, L)
     min_DCF, scores3, labels3 = v3.kfold(options)
-    
+    validator.plot_ROC(scores3, labels3, COLOR="c", show=True)
+
+
+    """
     #plot bayes_error for GMM Full Cov 8 Gau
 
     pis = np.linspace(-3, 3, 21)
@@ -178,5 +178,6 @@ def calibrate():
 
     pylab.savefig('CalibrationPics\%s.jpeg' % 'GMM_min_y')
     """
-
 calibrate()
+
+

@@ -1,6 +1,6 @@
 import numpy
 
-from PCA import PCA_reduce
+import PCA
 from arrangeData import z_norm, gaussianization_f
 
 class CrossValidator:
@@ -52,7 +52,7 @@ class CrossValidator:
                 DTR, DTE = gaussianization_f(DTR, DTE)
             
             if m is not None: #PCA needed
-                DTR, P = PCA_reduce(DTR, m)
+                DTR, P = PCA.PCA_reduce(DTR, m)
                 DTE = numpy.dot(P.T, DTE)
                 
             classifier.train(DTR, LTR)
@@ -112,3 +112,24 @@ def compute_min_DCF(scores, labels, pi, cfn, cfp): #ok
         dcf_list.append(compute_act_DCF(scores, labels, pi, cfn, cfp, threshold=t))
     return numpy.array(dcf_list).min()
     
+def plot_ROC(scores, labels, COLOR, show):
+    import pylab
+    thresholds = numpy.array(scores)
+    thresholds.sort()
+    thresholds = numpy.concatenate([numpy.array([-numpy.inf]), thresholds, numpy.array([numpy.inf]) ])
+    
+    fpr = numpy.zeros(thresholds.size)
+    tpr = numpy.zeros(thresholds.size)
+    for id, t in enumerate(thresholds):
+        predictions = numpy.int32(scores > t)
+        CM = numpy.zeros((2,2))
+
+        for i in range(2):
+            for j in range(2):
+                CM[i,j] =((predictions==i) * (labels==j)).sum()
+        tpr[id] = CM[1, 1] / (CM[1, 1] + CM[0, 1])
+        fpr[id] = CM[1, 0] / (CM[0, 0] + CM[1, 0])
+    pylab.plot(fpr, tpr, color = COLOR)
+    if show == True:    
+        pylab.show()
+
