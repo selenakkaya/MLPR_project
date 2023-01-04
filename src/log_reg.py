@@ -1,48 +1,61 @@
 
-import numpy
+import numpy as np
 import scipy
 import scipy.optimize
 
-class LogRegClassifier:
-    def __init__(self, l, pT):
-        self.l = l
-        self.pT = pT
-    
-    def train(self, DTR, LTR):
-        self.DTR = DTR
-        self.LTR = LTR
-        self.Z = LTR * 2.0 - 1.0
-        self.M = DTR.shape[0]
-        
-        self.DTR0 = DTR[:, LTR==0]
-        self.DTR1 = DTR[:, LTR==1]
-        self.nF = self.DTR0.shape[1]
-        self.nT = self.DTR1.shape[1]
-        
-        x0 = numpy.zeros(self.DTR.shape[0] + 1)
-        v, J, d = scipy.optimize.fmin_l_bfgs_b(self._logreg_func, x0, approx_grad=True)
-        self.w = v[0:-1]
-        self.b = v[-1]
-    
-    def _logreg_func(self, v):
-        w = v[0:self.M]
-        b = v[-1]
-        pT, l = self.pT, self.l
-        
-        S0 = numpy.dot(w.T, self.DTR0) + b
-        S1 = numpy.dot(w.T, self.DTR1) + b
-        crossEntropy = pT * numpy.logaddexp(0, -S1).mean()
-        crossEntropy += (1-pT) * numpy.logaddexp(0, S0).mean()
-        return crossEntropy + 0.5*l * numpy.linalg.norm(w)**2
-    
-    def validate(self, DTE, LTE):
-        predictedLabels = self.classify(DTE)
-        wrongPredictions = (LTE != predictedLabels).sum()
-        samplesNumber = DTE.shape[1]
-        errorRate = float(wrongPredictions / samplesNumber * 100)
-        return wrongPredictions, errorRate
-    
-    def compute_scores(self, DTE):
-        STE = numpy.dot(self.w.T, DTE) + self.b - numpy.log(self.nT/self.nF) 
-        return STE
-    
+
+import arrangeData
+
+
+mcol = arrangeData.mcol
+mrow = arrangeData.mrow 
+
+
+class LogisticRegression:
+
+    def train_classifier(self, D, L, l, pi, type='linear'): #or type: quadratic
+        self.LTR = L
+        self.type = type
+
+        if type == 'quadratic':
+            DT = feature_exp(D) 
+        else: 
+            DT = D
+
+        K = L.max() + 1
+        M = DT.shape[0]
+        obj = logreg_obj_wrapper(DT, L, l, pi)
+        x, f, d = scipy.optimize.fmin_l_bfgs_b(
+            obj,
+            x0=np.zeros(M * K + K),
+            approx_grad=True,
+        )
+        self.w, self.b = x[0:M], x[-1]
+        return self
+
+
+    def compute_scores(self, D):
+        DE = feature_exp(D) if self.type == 'quadratic' else D
+        postllr = np.dot(self.w, DE) + self.b
+        return postllr - np.log(self.LTR[self.LTR == 1].shape[0] / self.LTR[self.LTR == 0].shape[0])
+
+
+def logreg_obj_wrapper(D, L, l, pi):
+    Z = (L * 2) - 1
+    M = D.shape[0]
+
+    def log_reg_obj(v):
+        w, b = mcol(v[0:M]), v[-1]
+        c1 = 0.5 * l * (np.linalg.norm(w) ** 2)
+        c2 = ((pi) * (L[L == 1].shape[0] ** -1)) * np.logaddexp(0, -Z[Z == 1] * (np.dot(w.T, D[:, L == 1]) + b)).sum()
+        c3 = ((1 - pi) * (L[L == 0].shape[0] ** -1)) * np.logaddexp(0, -Z[Z == -1] * (np.dot(w.T, D[:, L == 0]) + b)).sum()
+        return c1 + c2 + c3
+    return log_reg_obj
+
+
+def feature_exp(D):
+    expansion = []
+    for i in range(D.shape[1]):
+        e = np.reshape(np.dot(mcol(D[:, i]), mcol(D[:, i]).T), (-1, 1), order='F')
+        expansion.append(e)
+    return np.vstack((np.hstack(expansion), D))

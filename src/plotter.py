@@ -7,11 +7,12 @@ import eval
 
 K=5
 
-"""
-D_gauss = arrangeData.gaussianization_f(arrangeData.DTR)
+DTR, LTR = arrangeData.load_data("..\Dataset\Train.txt")
 
-Male_Raw = arrangeData.DTR[:,arrangeData.LTR == 0]
-Female_Raw = arrangeData.DTR[:,arrangeData.LTR == 1]
+D_gauss = arrangeData.gaussianization_f(DTR)
+
+Male_Raw = DTR[:,LTR == 0]
+Female_Raw = DTR[:,LTR == 1]
 
 def plt_RawFeature(D):
     
@@ -28,8 +29,8 @@ def plt_RawFeature(D):
         plt.show()
 
 
-Male_gauss = arrangeData.D_gauss[:,arrangeData.L == 0]
-Female_gauss = arrangeData.D_gauss[:,arrangeData.L == 1]
+Male_gauss = D_gauss[:,LTR == 0]
+Female_gauss = D_gauss[:,LTR == 1]
 def plt_gaussianFeature(D):
     i=0
     plt.figure()
@@ -51,7 +52,7 @@ def show_heatmap(D, title, color):
     plt.imshow(pearson_matrix, cmap=color, vmin=-1, vmax=1)
     plt.savefig("heatmaps\heatmap_%s.jpeg" % (title))
 
-"""
+
 def plot_lambda_minDCF(D, L):
     options = {"m": None,
                "gaussianization": "no",
