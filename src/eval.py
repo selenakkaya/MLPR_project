@@ -39,7 +39,7 @@ def test_gauss_classifiers(D, L, options):
 #----------------------------------TEST LogReg-------------------------------------#
 
 def test_logistic_regression(D, L, options):
-    lr = log_reg.train_log_reg(D, L, options["l"], options["pT"], options["type"])
+    lr = log_reg.LogRegClassifier(options["l"], options["pT"], options["type"])
     v = validator.CrossValidator(lr, D, L)
     min_DCF, _, _ =v.kfold(options)
     print("Logistic regression: %.3f" % min_DCF)

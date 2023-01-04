@@ -18,7 +18,7 @@ def calibrate():
     row = ar.mrow 
 
     
-    D, L = ar.load_data("..\Dataset-pulsar\Train.txt")
+    D, L = ar.load_data("..\Dataset-pulsar\Test.txt")
     DTE, LTE = ar.load_data("..\Dataset-pulsar\Test.txt")
     
     options = {"m": 10, #No PCA
@@ -66,9 +66,10 @@ def calibrate():
                "K":K,
                "pT": 0.5,
                "pi": 0.5,
+               "type": "linear",
                "costs": (1, 1),
                "l": 1e-06}
-    lr = LR.LogRegClassifier(options["l"], options["pT"])
+    lr = LR.LogRegClassifier(options["l"], options["pT"], options["type"])
     v = validator.CrossValidator(lr, D, L)
     min_DCF, scores1, labels1 = v.kfold(options)
 

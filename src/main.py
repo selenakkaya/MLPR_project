@@ -126,7 +126,7 @@ def gaussian_classifiers_gaussian_classifiers_with_gaussianization_PCA_11(D, L):
 
 
 
-"""
+
 
 #----------------------------------------------------------------
 #----------------------Logistic Regression-----------------------
@@ -142,7 +142,7 @@ def logistic_regression(D, L):
                "pT": 0.5,
                "pi": 0.5,
                "costs": (1, 1),
-               "l": 1e-4}
+               "l": 1e-5}
     
     for options["normalization"] in ["yes", "no"]:
         for options["m"] in [None, 11,10]:
@@ -155,7 +155,7 @@ def logistic_regression(D, L):
 
 
 logistic_regression(D,L)
-
+"""
 #-------------------plot lambda - minDCF ----------------------------------------------#
 #plotter.plot_lambda_minDCF(D, L)
 #plotter.plot_lambda_minDCF_gau(D, L)
@@ -164,7 +164,7 @@ logistic_regression(D,L)
 #----------------------------------------------------------------
 #-----------------------------SVM--------------------------------
 #----------------------------------------------------------------
-"""
+
 def SVM(D, L):
     options = {"m": None,
                "gaussianization": "no",
@@ -177,19 +177,19 @@ def SVM(D, L):
                "mode": "Linear",
                "gamma": np.exp(-3)}
     
-    for options["mode"] in ["RBF","Quadratic","Linear"]:
-        for options["pi"] in [0.5, 0.1, 0.9]:
-            print("")
-            print(options)
-            eval.test_SVM(D, L, options)
+    #for options["mode"] in ["RBF","Quadratic","Linear"]:
+    for options["pi"] in [0.5, 0.1, 0.9]:
+        print("")
+        print(options)
+        eval.test_SVM(D, L, options)
 
 #SVM(D, L)
-#plotter.plot_C_minDCF(D, L) #change pT =0.1, 0.9 and take the plots
+plotter.plot_C_minDCF(D, L) #change pT =0.1, 0.9 and take the plots
 
 #----------------------------------------------------------------
 #-----------------------------GMM--------------------------------
 #----------------------------------------------------------------
-
+"""
 
 def GMM(D, L):
     options = {"m": None,
