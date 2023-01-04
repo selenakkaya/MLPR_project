@@ -130,7 +130,7 @@ def plot_lambda_minDCF_gau(D, L):
 
 def plot_C_minDCF(D, L):
     options = {"m": None,
-               "gaussianization": "no",
+               "gaussianization": "yes",
                "normalization" : "no",
                "gamma" : 1,
                "K": K,
@@ -156,6 +156,7 @@ def plot_C_minDCF(D, L):
     plt.semilogx()
     plt.xlabel("C")
     plt.ylabel("minDCF")
-    plt.savefig("C_minDCF_SVM.jpeg")
+    #plt.savefig("C_minDCF_SVM_normalized.jpeg")    
+    plt.savefig("C_minDCF_SVM_gau.jpeg")
 
 

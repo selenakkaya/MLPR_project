@@ -36,7 +36,7 @@ def test():
     """   
     print("SVM")
     for pi in [0.5, 0.1, 0.9]:
-        s = SVM.SupportVectorMachines(1e-3, "Linear", 0.5, 1.0)
+        s = SVM.SupportVectorMachines(1e-3, "Linear", 0.5, 1e-3, 1.0)
         s.train(DTR, LTR)
         scores = s.compute_scores(DTE)
         min_DCF = compute_min_DCF(scores, LTE, pi, 1, 1)

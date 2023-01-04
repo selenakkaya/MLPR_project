@@ -10,13 +10,13 @@ row = arrangeData.mrow
 
 
 class SupportVectorMachines:
-    def __init__(self, C, mode, pT, gamma, d=2, K=1.0):
+    def __init__(self, C, mode, pT, gamma, k, d=2):
         self.C = C
         self.mode = mode
         self.pT = pT
         self.d = d
         self.gamma = gamma
-        self.K = K
+        self.k = k
         self.w_start = None
         self.H = None
     

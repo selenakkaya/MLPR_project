@@ -48,7 +48,7 @@ def test_logistic_regression(D, L, options):
 #----------------------------------TEST SVM-------------------------------------#
 
 def test_SVM(D, L, options):
-    s = SVM.SupportVectorMachines(options["C"], options["mode"], options["pT"],  gamma=options["gamma"])
+    s = SVM.SupportVectorMachines(options["C"], options["mode"], options["pT"],  gamma=options["gamma"], k=options["k"])
     v = validator.CrossValidator(s, D, L)
     min_DCF, _, _ =v.kfold(options)
     print("SVM: %.3f" % min_DCF)
