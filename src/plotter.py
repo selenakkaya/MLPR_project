@@ -126,14 +126,15 @@ def plot_lambda_minDCF_gau(D, L):
 
 
 
-############### For SVM ###############
+############### For Linear SVM ###############
 
-def plot_C_minDCF(D, L):
+def plot_C_minDCF_L_SVM(D, L):
     options = {"m": None,
                "gaussianization": "yes",
                "normalization" : "no",
                "gamma" : 1,
                "K": K,
+               "k":1.0,
                "pT": 0.5,
                "pi": 0.5,
                "costs": (1, 1),
@@ -157,6 +158,73 @@ def plot_C_minDCF(D, L):
     plt.xlabel("C")
     plt.ylabel("minDCF")
     #plt.savefig("C_minDCF_SVM_normalized.jpeg")    
-    plt.savefig("C_minDCF_SVM_gau.jpeg")
+    plt.savefig("C_minDCF_L_SVM_gau.jpeg")
 
 
+############### For Quad SVM ###############
+
+def plot_C_minDCF_Q_SVM(D, L):
+    options = {"m": None,
+               "gaussianization": "no",
+               "normalization" : "yes",
+               "gamma" : 1,
+               "K": K,
+               "k":1.0,
+               "pT": 0.5,
+               "pi": 0.5,
+               "costs": (1, 1),
+               "mode": "Quadratic",
+               "C": 1}
+    
+    pis = [0.5, 0.1, 0.9]
+    C = [1e-3,  1e-2, 1e-1, 1]
+    min_DCFs = {pi: [] for pi in pis}
+    for options["pi"] in pis:
+        print("")
+        for options["C"] in C:
+            print(options)
+            min_DCF = eval.test_SVM(D, L, options)
+            min_DCFs[options["pi"]].append(min_DCF)
+    plt.figure()
+    for pi in pis:
+        plt.plot(C, min_DCFs[pi], label='prior='+str(pi))
+    plt.legend()
+    plt.semilogx()
+    plt.xlabel("C")
+    plt.ylabel("minDCF")
+    plt.savefig("C_minDCF_Q_SVM_normalized.jpeg")    
+    #plt.savefig("C_minDCF_SVM_gau.jpeg")
+
+############### For RBF SVM ###############
+
+def plot_minDCF_gamma_SVM(D, L):
+    options = {"m": None,
+               "gaussianization": "no",
+               "normalization" : "yes",
+               "gamma" : 1,
+               "K": K,
+               "k":1.0,
+               "pT": 0.5,
+               "pi": 0.5,
+               "costs": (1, 1),
+               "mode": "RBF",
+               "C": 1}
+    
+    pis = [0.5, 0.1, 0.9]
+    gamma = [1e-4, 1e-3, 1e-2, 1e-1, 1]
+    min_DCFs = {pi: [] for pi in pis}
+    for options["pi"] in pis:
+        print("")
+        for options["gamma"] in gamma:
+            print(options)
+            min_DCF = eval.test_SVM(D, L, options)
+            min_DCFs[options["pi"]].append(min_DCF)
+    plt.figure()
+    for pi in pis:
+        plt.plot(gamma, min_DCFs[pi], label='prior='+str(pi))
+    plt.legend()
+    plt.semilogx()
+    plt.xlabel("gamma")
+    plt.ylabel("minDCF")
+    plt.savefig("gamma_minDCF_RBF_SVM_normalized.jpeg")    
+    #plt.savefig("C_minDCF_SVM_gau.jpeg")

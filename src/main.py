@@ -175,18 +175,20 @@ def SVM(D, L):
                "pT": 0.5,
                "pi": 0.5,
                "costs": (1, 1),
-               "mode": "Linear",
-               "gamma": 1e-3}
-    for options["k"] in [10.0, 100]:
-        for options["C"] in [1e-2, 1e-1, 1, 10]:
-            for options["pi"] in [0.5, 0.1, 0.9]:
-                print("")
-                print(options)
-                eval.test_SVM(D, L, options)
+               "mode": "RBF", #Quadratic, RBF
+               "gamma": 1e-2}
+    for options["mode"] in ["RBF", "Quadratic", "Linear"]:            
+        for options["k"] in [1.0, 0.1]:
+            for options["C"] in [1e-1, 1.0, 10.0]:
+                for options["pi"] in [0.5, 0.1, 0.9]:
+                    print("")
+                    print(options)
+                    eval.test_SVM(D, L, options)
 
 SVM(D, L)
-#plotter.plot_C_minDCF(D, L) #change pT =0.1, 0.9 and take the plots
-
+#plotter.plot_C_minDCF_L_SVM(D, L) #change pT =0.1, 0.9 and take the plots
+#plotter.plot_C_minDCF_Q_SVM(D, L) #change pT =0.1, 0.9 and take the plots
+#plotter.plot_minDCF_gamma_SVM(D, L)
 #----------------------------------------------------------------
 #-----------------------------GMM--------------------------------
 #----------------------------------------------------------------

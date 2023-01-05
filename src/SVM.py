@@ -39,14 +39,15 @@ class SupportVectorMachines:
         Z[LTR == 1] = 1
         
         if self.mode == "Linear":
+            DTRext = numpy.vstack([DTR, self.k * numpy.ones(DTR.shape[1])])
             H = numpy.dot(DTRext.T, DTRext)
             H = column(Z) * row(Z) * H
         elif self.mode == "Quadratic":
-            H = numpy.dot(DTRext.T, DTRext) ** self.d
+            H = numpy.dot(DTRext.T, DTRext) ** self.d  + self.k**2
             H = column(Z) * row(Z) * H
         elif self.mode == "RBF":
             dist = column((DTR**2).sum(0)) + row((DTR**2).sum(0)) - 2*numpy.dot(DTR.T, DTR)
-            H = numpy.exp(-self.gamma * dist) + self.K
+            H = numpy.exp(-self.gamma * dist) + self.k
             H = column(Z) * row(Z) * H
         
         self.H = H
