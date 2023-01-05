@@ -1,4 +1,3 @@
-
 import numpy
 import scipy
 
@@ -39,31 +38,30 @@ class SupportVectorMachines:
         Z[LTR == 1] = 1
         
         if self.mode == "Linear":
-            DTRext = numpy.vstack([DTR, self.k * numpy.ones(DTR.shape[1])])
+            DTRext = numpy.vstack([DTR, numpy.ones((1,DTR.shape[1]))])
             H = numpy.dot(DTRext.T, DTRext)
             H = column(Z) * row(Z) * H
         elif self.mode == "Quadratic":
-            H = numpy.dot(DTRext.T, DTRext) ** self.d  + self.k**2
-            H = column(Z) * row(Z) * H
+            kernel = (numpy.dot(DTRext.T, DTRext)+self.C) ** self.d  + self.k*self.k
+            H = column(Z) * row(Z) * kernel
         elif self.mode == "RBF":
-            dist = column((DTR**2).sum(0)) + row((DTR**2).sum(0)) - 2*numpy.dot(DTR.T, DTR)
-            H = numpy.exp(-self.gamma * dist) + self.k
-            H = column(Z) * row(Z) * H
+            Dist = column((DTR ** 2).sum(0)) + row((DTR ** 2).sum(0)) - 2 * numpy.dot(DTR.T, DTR)
+            kernel = numpy.exp(-self.gamma * Dist) + (self.k ** 2)
+            H = column(Z) * row(Z) * kernel
         
         self.H = H
-        
-        bounds = [(-1, -1)] * DTR.shape[1]
-        for i in range(DTR.shape[1]):
-            if LTR[i] == 0:
-                bounds[i] = (0, Cf)
-            else:
-                bounds[i] = (0, Ct)
-        
+            
+
+        #FOR CLASS BALANCING
+        C1 = (self.C * self.pT) / (DTR[:, LTR == 1].shape[1] / DTR.shape[1])
+        C0 = (self.C * (1 - self.pT)) / (DTR[:, LTR == 0].shape[1] / DTR.shape[1])
+        bounds = [((0, C0) if x == 0 else (0, C1)) for x in LTR.tolist()]
+       
         alpha_star, x, y = scipy.optimize.fmin_l_bfgs_b(
             self._LDual, 
             numpy.zeros(DTR.shape[1]),
             bounds = [(0, self.C)] * DTR.shape[1], #no class balancing
-            #bounds = bounds,
+            #bounds = bounds, #class balancing
             factr = 1e7,
             maxiter = 100000,
             maxfun = 100000

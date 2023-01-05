@@ -167,19 +167,19 @@ logistic_regression(D,L)
 
 def SVM(D, L):
     options = {"m": None,
-               "gaussianization": "no",
-               "normalization" : "yes",
+               "gaussianization": "yes",
+               "normalization" : "no",
                "K": K,#fold
                "k": 1.0,
                "C":1e-1,
                "pT": 0.5,
                "pi": 0.5,
                "costs": (1, 1),
-               "mode": "RBF", #Quadratic, RBF
+               "mode": "Linear", #Quadratic, RBF
                "gamma": 1e-2}
     for options["mode"] in ["RBF", "Quadratic", "Linear"]:            
         for options["k"] in [1.0, 0.1]:
-            for options["C"] in [1e-1, 1.0, 10.0]:
+            for options["C"] in [1.0, 1e-1, 10.0]:
                 for options["pi"] in [0.5, 0.1, 0.9]:
                     print("")
                     print(options)
