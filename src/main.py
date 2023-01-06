@@ -177,7 +177,7 @@ def SVM(D, L):
                "costs": (1, 1),
                "mode": "Linear", #Quadratic, RBF
                "gamma": 1e-2}
-    for options["mode"] in ["RBF", "Quadratic", "Linear"]:            
+    for options["mode"] in ["Linear", "RBF", "Quadratic", ]:            
         for options["k"] in [1.0, 0.1]:
             for options["C"] in [1.0, 1e-1, 10.0]:
                 for options["pi"] in [0.5, 0.1, 0.9]:
@@ -185,7 +185,7 @@ def SVM(D, L):
                     print(options)
                     eval.test_SVM(D, L, options)
 
-#SVM(D, L)
+SVM(D, L)
 #plotter.plot_C_minDCF_L_SVM(D, L) #change pT =0.1, 0.9 and take the plots
 #plotter.plot_C_minDCF_Q_SVM(D, L) #change pT =0.1, 0.9 and take the plots
 #plotter.plot_minDCF_gamma_SVM(D, L)
@@ -211,4 +211,5 @@ def GMM(D, L):
                 eval.test_GMM(D, L, options)
 
 #GMM(D,L)
-plotter.GMM_components_graph(D, L)
+#plotter.GMM_components_graph(D, L)
+

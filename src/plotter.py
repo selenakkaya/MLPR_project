@@ -230,6 +230,7 @@ def plot_minDCF_gamma_SVM(D, L):
     #plt.savefig("C_minDCF_SVM_gau.jpeg")
 
 ############### For GMM  ###############
+
 def GMM_components_graph(D, L):
     options = {"m": None,
                "gaussianization": "no",
@@ -241,7 +242,11 @@ def GMM_components_graph(D, L):
                "tiedness": "untied",
                "n": 1}
     
-    ns = [1, 2, 3]
+    ns = [1, 2]
+    
+    x_labels = ['2 components', '4 components']
+    
+    
     min_DCFs = {n: [] for n in ns}
     for options["n"] in ns:
         print("")
@@ -249,10 +254,12 @@ def GMM_components_graph(D, L):
         min_DCF = eval.test_GMM(D, L, options)
         min_DCFs[options["n"]].append(min_DCF)
     plt.figure()
-    for n in n:
-        plt.plot(n, min_DCFs[n], label='components='+str(n))
-    plt.legend()
+    for n in ns:
+        # Create the bar plot
+        plt.bar(range(len(ns)), ns)
+    plt.xticks(range(len(ns)), x_labels)
+
     plt.semilogx()
-    plt.xlabel("gamma")
+    plt.xlabel("components")
     plt.ylabel(str(options["mode"]) + str(options["tiedness"]))
     plt.savefig("GMM_components_plot.jpeg")    

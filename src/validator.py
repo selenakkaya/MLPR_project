@@ -112,7 +112,7 @@ def compute_min_DCF(scores, labels, pi, cfn, cfp): #ok
         dcf_list.append(compute_act_DCF(scores, labels, pi, cfn, cfp, threshold=t))
     return numpy.array(dcf_list).min()
     
-def plot_ROC(scores, labels, COLOR, show):
+def plot_ROC(scores, name, labels, COLOR, show):
     import pylab
     thresholds = numpy.array(scores)
     thresholds.sort()
@@ -132,4 +132,5 @@ def plot_ROC(scores, labels, COLOR, show):
     pylab.plot(fpr, tpr, color = COLOR)
     if show == True:    
         pylab.show()
+    pylab.savefig('score_calibration_plots\_' +  name + '.jpeg')
 
