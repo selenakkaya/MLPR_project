@@ -158,8 +158,6 @@ logistic_regression(D,L)
 """
 #-------------------plot lambda - minDCF ----------------------------------------------#
 #plotter.plot_lambda_minDCF(D, L)
-#plotter.plot_lambda_minDCF_gau(D, L)
-
 
 #----------------------------------------------------------------
 #-----------------------------SVM--------------------------------
@@ -195,8 +193,8 @@ def SVM(D, L):
 
 
 def GMM(D, L):
-    options = {"m": None,
-               "gaussianization": "no",
+    options = {"m": 10,
+               "gaussianization": "yes",
                "normalization" : "no",
                "K": K,
                "pi": 0.5,
@@ -210,7 +208,6 @@ def GMM(D, L):
                 print(options)
                 eval.test_GMM(D, L, options)
 
-#GMM(D,L)
+GMM(D,L)
 #plotter.GMM_components_graph(D, L)
 
-plotter.plot_lambda_minDCF_gau(D,L)
