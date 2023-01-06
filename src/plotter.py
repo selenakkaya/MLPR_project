@@ -124,8 +124,37 @@ def plot_lambda_minDCF_gau(D, L):
     plt.ylabel("minDCF")
     plt.savefig("lambda-minDCF_Plots/lambda_minDCF" + fn + ".jpeg")
 
+############### For LR lambda-mindcf ###############
 
 
+def plot_lambda_minDCF_gau(D, L):
+    options = {"m": None,
+               "gaussianization": "no",
+               "normalization" : "no",
+               "type" : "linear",
+               "K": K,
+               "pT": 0.5,
+               "pi": 0.5,
+               "costs": (1, 1),
+               "l": 1e-5}
+    
+    pis = [0.5, 0.1, 0.9]
+    lambdas = [0, 1e-4, 1e-3, 1e-2, 1e-1, 1e1, 1e2, 1e3]
+    min_DCFs = {pi: [] for pi in pis}
+    for options["pi"] in pis:
+        print("")
+        for options["l"] in lambdas:
+            print(options)
+            min_DCF = eval.test_logistic_regression(D, L, options)
+            min_DCFs[options["pi"]].append(min_DCF)
+    plt.figure()
+    for pi in pis:
+        plt.plot(lambdas, min_DCFs[pi], label='prior='+str(pi))
+    plt.legend()
+    plt.semilogx()
+    plt.xlabel("λ")
+    plt.ylabel("minDCF")
+    plt.savefig("LR_plots\lambda_minDCF.jpeg")
 ############### For Linear SVM ###############
 
 def plot_C_minDCF_L_SVM(D, L):

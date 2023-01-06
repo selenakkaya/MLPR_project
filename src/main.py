@@ -185,7 +185,7 @@ def SVM(D, L):
                     print(options)
                     eval.test_SVM(D, L, options)
 
-SVM(D, L)
+#SVM(D, L)
 #plotter.plot_C_minDCF_L_SVM(D, L) #change pT =0.1, 0.9 and take the plots
 #plotter.plot_C_minDCF_Q_SVM(D, L) #change pT =0.1, 0.9 and take the plots
 #plotter.plot_minDCF_gamma_SVM(D, L)
@@ -213,3 +213,4 @@ def GMM(D, L):
 #GMM(D,L)
 #plotter.GMM_components_graph(D, L)
 
+plotter.plot_lambda_minDCF_gau(D,L)
