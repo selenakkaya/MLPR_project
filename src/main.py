@@ -177,7 +177,7 @@ def SVM(D, L):
                "costs": (1, 1),
                "mode": "Linear", #Quadratic, RBF
                "gamma": 1e-2}
-    for options["mode"] in ["Linear", "RBF", "Quadratic", ]:            
+    for options["mode"] in ["Linear", "RBF", "Quadratic"]:            
         for options["k"] in [1.0, 0.1]:
             for options["C"] in [1.0, 1e-1, 10.0]:
                 for options["pi"] in [0.5, 0.1, 0.9]:

@@ -194,7 +194,6 @@ def calibrate():
     g = GMM.GMM_classifier(options["n"], options["mode"], options["tiedness"])
     v3 = validator.CrossValidator(g, D, L)
     min_DCF, scores3, labels3 = v3.kfold(options)
-    validator.plot_ROC(scores3, labels3, COLOR="c", show=True)
 
 
 
@@ -206,7 +205,7 @@ def calibrate():
     
     for p in pis:
         pi = 1.0 / (1.0 + np.exp(-p))
-        min_y_GMM.append(validator.compute_min_DCF(scores3, labels3, pi, 1, 1))
+        min_y_GMM.append(validator.compute_min_DCF(scores3,  labels3, pi, 1, 1))
         act_y_GMM.append(validator.compute_act_DCF(scores3, labels3, pi, 1, 1))
 
     def bayesError_plot_GMM(pis, min_y, act_y ):   
@@ -217,14 +216,13 @@ def calibrate():
         pylab.plot(pis, act_y, color="y")
         pylab.ylim(0, 1.1)
         pylab.legend(['act_DCF','min_DCF'])
-        pylab.xlabel("FPR")
-        pylab.ylabel("TPR")
+        pylab.ylabel("DCF")
 
         
         pylab.savefig('score_calibration_plots\GMM_BayError.jpeg')
     
-    bayesError_plot_GMM(pis, min_y_GMM, act_y_GMM )
-    #validator.plot_ROC(scores, 'GMM_ROC_curve', labels, COLOR="y", show=False)
+    #bayesError_plot_GMM(pis, min_y_GMM, act_y_GMM )
+    validator.plot_ROC(scores3, 'GMM_ROC_curve', labels3, COLOR="y", show=False)
 calibrate()
 
 

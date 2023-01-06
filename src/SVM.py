@@ -60,8 +60,8 @@ class SupportVectorMachines:
         alpha_star, x, y = scipy.optimize.fmin_l_bfgs_b(
             self._LDual, 
             numpy.zeros(DTR.shape[1]),
-            #bounds = [(0, self.C)] * DTR.shape[1], #no class balancing
-            bounds = bounds, #class balancing
+            bounds = [(0, self.C)] * DTR.shape[1], #no class balancing
+            #bounds = bounds, #class balancing
             factr = 1e7,
             maxiter = 100000,
             maxfun = 100000

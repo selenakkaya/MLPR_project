@@ -106,10 +106,13 @@ def compute_min_DCF(scores, labels, pi, cfn, cfp): #ok
     thresholds = numpy.array(scores)
     thresholds.sort()
     
-    numpy.concatenate([numpy.array([-numpy.inf]), thresholds, numpy.array([numpy.inf]) ])
+    minus_inf = numpy.array([-numpy.inf])
+    plus_inf = numpy.array([numpy.inf])
+    numpy.concatenate([minus_inf, thresholds.ravel(), plus_inf])
     dcf_list = []
     for t in thresholds:
-        dcf_list.append(compute_act_DCF(scores, labels, pi, cfn, cfp, threshold=t))
+        act_DCF = compute_act_DCF(scores, labels, pi, cfn, cfp, t)
+        dcf_list.append(act_DCF)
     return numpy.array(dcf_list).min()
     
 def plot_ROC(scores, name, labels, COLOR, show):

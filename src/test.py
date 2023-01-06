@@ -11,10 +11,9 @@ def test():
     DTR, LTR = ar.load_data("..\Dataset\Train.txt")
     DTE, LTE = ar.load_data("..\Dataset\Test.txt")
     
-    DTR, mu, sigma = ar.z_norm(DTR)
-    DTE, mu, sigma = ar.z_norm(DTE, mu, sigma)
+    #DTR, mu, sigma = ar.z_norm(DTR)
+    #DTE, mu, sigma = ar.z_norm(DTE, mu, sigma)
 
-    """
     print("MVG")
     for pi in [0.5, 0.1, 0.9]:
         gc = MVG.GaussianClassifier("full covariance", "tied")
@@ -33,18 +32,18 @@ def test():
         min_DCF = compute_min_DCF(scores, LTE, pi, 1, 1)
         print(min_DCF)
     print("")
-    """
+
 
     print("SVM")
     for pi in [0.5, 0.1, 0.9]:
-        s = SVM.SupportVectorMachines(1.0, "Linear", 0.5, 1e-2, 1.0)
+        s = SVM.SupportVectorMachines(1e-1, "Linear", 0.5, 1e-2, 1.0)
         s.train(DTR, LTR)
         scores = s.compute_scores(DTE)
         min_DCF = compute_min_DCF(scores, LTE, pi, 1, 1)
         print(min_DCF)
     print("")
 
-    """      
+    
 
     print("GMM")
     for pi in [0.5, 0.1, 0.9]:
@@ -55,6 +54,5 @@ def test():
         print(min_DCF)
     print("")
 
-    """      
 
 test()
