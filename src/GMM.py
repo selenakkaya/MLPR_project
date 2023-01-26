@@ -29,12 +29,11 @@ class GMM_classifier:
         return ll1-ll0
     
     def _LBG(self, X, doublings):
-        initial_mu = mcol(X.mean(1))
-        initial_sigma = numpy.cov(X)
         
-        gmm = [(1.0, initial_mu, initial_sigma)]
+        gmm = [(1.0, mcol(X.mean(1)), numpy.cov(X))]
         for i in range(doublings):
-            doubled_gmm = []
+            doubled = []
+
             for component in gmm:
                 w = component[0]
                 mu = component[1]
@@ -42,18 +41,25 @@ class GMM_classifier:
                 
                 U, s, Vh = numpy.linalg.svd(sigma)
                 d = U[:, 0:1] * s[0]**0.5 * 0.1
-                component1 = (w/2, mu+d, sigma)
-                component2 = (w/2, mu-d, sigma)
-                doubled_gmm.append(component1)
-                doubled_gmm.append(component2)
+
+                comp_1 = (w/2, mu+d, sigma)
+                comp_2 = (w/2, mu-d, sigma)
+
+                doubled.append(comp_1)
+                doubled.append(comp_2)
+
+
             if self.mode == "full" and self.tiedness == "untied":
-                gmm = self._GMM_EM(X, doubled_gmm)
+                gmm = self._GMM_EM(X, doubled)
+
             elif self.mode == "naive" and self.tiedness == "untied":
-                gmm = self._GMM_EM_diag(X, doubled_gmm)
+                gmm = self._GMM_EM_diag(X, doubled)
+
             elif self.mode == "full" and self.tiedness == "tied":
-                gmm = self._GMM_EM_tied(X, doubled_gmm)
+                gmm = self._GMM_EM_tied(X, doubled)
+
             elif self.mode == "naive" and self.tiedness == "tied":
-                gmm = self._GMM_EM_diag_tied(X, doubled_gmm)
+                gmm = self._GMM_EM_diag_tied(X, doubled)
         return gmm
     
     def _logpdf_GAU_ND_Opt(self, X, mu, C):
@@ -79,20 +85,20 @@ class GMM_classifier:
         return scipy.special.logsumexp(S, axis=0)
 
     def _GMM_EM(self, X, gmm):
-        ll_new = None
-        ll_old = None
+        new_ll = None
+        old_ll = None
         G = len(gmm)
         N = X.shape[1]
         
         psi = 0.01
         
-        while ll_old is None or ll_new-ll_old>1e-6:
-            ll_old = ll_new
+        while old_ll is None or new_ll-old_ll>1e-6:
+            old_ll = new_ll
             SJ = numpy.zeros((G, N))
             for g in range(G):
                 SJ[g, :] = self._logpdf_GAU_ND_Opt(X, gmm[g][1], gmm[g][2]) + numpy.log(gmm[g][0])
             SM = scipy.special.logsumexp(SJ, axis=0)
-            ll_new = SM.sum() / N
+            new_ll = SM.sum() / N
             P = numpy.exp(SJ - SM)
             
             gmm_new = []
@@ -114,20 +120,20 @@ class GMM_classifier:
         return gmm
     
     def _GMM_EM_diag(self, X, gmm):
-        ll_new = None
-        ll_old = None
+        new_ll = None
+        old_ll = None
         G = len(gmm)
         N = X.shape[1]
         
         psi = 0.01
         
-        while ll_old is None or ll_new-ll_old>1e-6:
-            ll_old = ll_new
+        while old_ll is None or new_ll-old_ll>1e-6:
+            old_ll = new_ll
             SJ = numpy.zeros((G, N))
             for g in range(G):
                 SJ[g, :] = self._logpdf_GAU_ND_Opt(X, gmm[g][1], gmm[g][2]) + numpy.log(gmm[g][0])
             SM = scipy.special.logsumexp(SJ, axis=0)
-            ll_new = SM.sum() / N
+            new_ll = SM.sum() / N
             P = numpy.exp(SJ - SM)
             
             gmm_new = []
@@ -152,20 +158,20 @@ class GMM_classifier:
         return gmm
     
     def _GMM_EM_tied(self, X, gmm):
-        ll_new = None
-        ll_old = None
+        new_ll = None
+        old_ll = None
         G = len(gmm)
         N = X.shape[1]
         
         psi = 0.01
         
-        while ll_old is None or ll_new-ll_old>1e-6:
-            ll_old = ll_new
+        while old_ll is None or new_ll-old_ll>1e-6:
+            old_ll = new_ll
             SJ = numpy.zeros((G, N))
             for g in range(G):
                 SJ[g, :] = self._logpdf_GAU_ND_Opt(X, gmm[g][1], gmm[g][2]) + numpy.log(gmm[g][0])
             SM = scipy.special.logsumexp(SJ, axis=0)
-            ll_new = SM.sum() / N
+            new_ll = SM.sum() / N
             P = numpy.exp(SJ - SM)
             
             gmm_new = []
@@ -180,8 +186,9 @@ class GMM_classifier:
                 sigma = S/Z - numpy.dot(mu, mu.T)
                 summatory += Z*sigma
                 gmm_new.append((w, mu, sigma))
-            #tying
+            #making it tied
             sigma = summatory / G
+            
             #constraint
             U, s, _ = numpy.linalg.svd(sigma)
             s[s<psi] = psi
@@ -190,20 +197,20 @@ class GMM_classifier:
         return gmm
     
     def _GMM_EM_diag_tied(self, X, gmm):
-        ll_new = None
-        ll_old = None
+        new_ll = None
+        old_ll = None
         G = len(gmm)
         N = X.shape[1]
         
         psi = 0.01
         
-        while ll_old is None or ll_new-ll_old>1e-6:
-            ll_old = ll_new
+        while old_ll is None or new_ll-old_ll>1e-6:
+            old_ll = new_ll
             SJ = numpy.zeros((G, N))
             for g in range(G):
                 SJ[g, :] = self._logpdf_GAU_ND_Opt(X, gmm[g][1], gmm[g][2]) + numpy.log(gmm[g][0])
             SM = scipy.special.logsumexp(SJ, axis=0)
-            ll_new = SM.sum() / N
+            new_ll = SM.sum() / N
             P = numpy.exp(SJ - SM)
             
             gmm_new = []
@@ -216,11 +223,11 @@ class GMM_classifier:
                 w = Z/N
                 mu = mcol(F/Z)
                 sigma = S/Z - numpy.dot(mu, mu.T)
-                #diagonalization
+                #making diagonalize
                 sigma = sigma * numpy.eye(sigma.shape[0])
                 summatory += Z*sigma
                 gmm_new.append((w, mu, sigma))
-            #tying
+
             sigma = summatory / G
             #constraint
             U, s, _ = numpy.linalg.svd(sigma)

@@ -24,10 +24,8 @@ class SupportVectorMachines:
         
         DTR0 = DTR[:, LTR==0]
         DTR1 = DTR[:, LTR==1]
-        nF = DTR0.shape[1]
-        nT = DTR1.shape[1]
-        emp_prior_F = (nF / DTR.shape[1])
-        emp_prior_T =  (nT / DTR.shape[1])
+        emp_prior_F = (DTR0.shape[1] / DTR.shape[1])
+        emp_prior_T =  (DTR1.shape[1] / DTR.shape[1])
         Cf = self.C * self.pT 
         Cf = Cf / emp_prior_F
         Ct = self.C * self.pT 
@@ -62,23 +60,19 @@ class SupportVectorMachines:
             numpy.zeros(DTR.shape[1]),
             bounds = [(0, self.C)] * DTR.shape[1], #no class balancing
             #bounds = bounds, #class balancing
-            factr = 1e7,
-            maxiter = 100000,
-            maxfun = 100000
+            factr = 1e7
                 )
 
         self.w_star = numpy.dot(DTRext, column(alpha_star) * column(Z))
     
     def compute_scores(self, DTE):
-        DTEext = numpy.vstack([DTE, numpy.ones((1, DTE.shape[1]))])
-        S = numpy.dot(self.w_star.T, DTEext)
+        S = numpy.dot(self.w_star.T, numpy.vstack([DTE, numpy.ones((1, DTE.shape[1]))]))
         return S
         
     def _JDual(self, alpha):
-        Ha = numpy.dot(self.H, column(alpha))
-        aHa = numpy.dot(row(alpha), Ha)
+        x = numpy.dot(self.H, column(alpha))
         a1 = alpha.sum()
-        return -0.5 * aHa.ravel() + a1, -Ha.ravel() + numpy.ones(alpha.size)
+        return -0.5 * numpy.dot(row(alpha), x).ravel() + a1, -x.ravel() + numpy.ones(alpha.size)
     
     def _LDual(self, alpha):
         loss, grad = self._JDual(alpha)

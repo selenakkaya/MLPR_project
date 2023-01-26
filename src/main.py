@@ -131,13 +131,13 @@ def gaussian_classifiers_gaussian_classifiers_with_gaussianization_PCA_11(D, L):
 #----------------------------------------------------------------
 #----------------------Logistic Regression-----------------------
 #----------------------------------------------------------------
-
+"""
 
 def logistic_regression(D, L):
     options = {"m": None,
                "gaussianization": "no",
                "normalization" : "no",
-               "type" : "linear",
+               "type" : "quadratic", #linear, quadratic
                "K": K,
                "pT": 0.5,
                "pi": 0.5,
@@ -154,8 +154,8 @@ def logistic_regression(D, L):
                     eval.test_logistic_regression(D, L, options)
 
 
-logistic_regression(D,L)
-"""
+#logistic_regression(D,L)
+
 #-------------------plot lambda - minDCF ----------------------------------------------#
 #plotter.plot_lambda_minDCF(D, L)
 
@@ -173,9 +173,9 @@ def SVM(D, L):
                "pT": 0.5,
                "pi": 0.5,
                "costs": (1, 1),
-               "mode": "Linear", #Quadratic, RBF
+               "mode": "Linear", #Linear, Quadratic, RBF
                "gamma": 1e-2}
-    for options["mode"] in ["Linear", "RBF", "Quadratic"]:            
+    for options["mode"] in ["RBF", "Quadratic",  "Linear"]:            
         for options["k"] in [1.0, 0.1]:
             for options["C"] in [1.0, 1e-1, 10.0]:
                 for options["pi"] in [0.5, 0.1, 0.9]:
@@ -203,11 +203,12 @@ def GMM(D, L):
                "tiedness": "untied",
                "n": 1}
     for options["n"] in [1, 2, 3]:
-        for options["mode"] in ["full", "naive"]:
-            for options["tiedness"] in ["untied", "tied"]:
+        for options["mode"] in [ "naive", "full"]:
+            for options["tiedness"] in ["tied", "untied"]:
                 print(options)
                 eval.test_GMM(D, L, options)
 
-GMM(D,L)
+#GMM(D,L)
 #plotter.GMM_components_graph(D, L)
+
 
