@@ -26,7 +26,7 @@ def test():
     
     print("LR")
     for pi in [0.5, 0.1, 0.9]:
-        lr = log_reg.LogRegClassifier(0, 0.5, "Linear")
+        lr = log_reg.LogRegClassifier(0, 0.5, "quadratic") #Linear
         lr.train(DTR, LTR)
         scores = lr.compute_scores(DTE)
         min_DCF = compute_min_DCF(scores, LTE, pi, 1, 1)

@@ -10,9 +10,12 @@ mrow = arrangeData.mrow
 def feature_expansion(D):
     expansion = []
     for i in range(D.shape[1]):
-        e = numpy.reshape(numpy.dot(mcol(D[:, i]), mcol(D[:, i]).T), (-1, 1), order='F')
-        expansion.append(e)
-    return numpy.vstack((numpy.hstack(expansion), D))
+        x = D[:,i:i+1]
+        x1 = numpy.dot(x, x.T)
+        x2 = numpy.ravel(x1, order='F')
+        x3 = numpy.concatenate( (mcol(x2), mcol(x)), axis=0)
+        expansion.append(x3)
+    return numpy.hstack(expansion)
 
 class LogRegClassifier:
     def __init__(self, l, pT, type):
@@ -37,7 +40,7 @@ class LogRegClassifier:
         
         x0 = numpy.zeros(self.DTR.shape[0] + 1)
         v, J, d = scipy.optimize.fmin_l_bfgs_b(self._logreg_func, x0, approx_grad=True)
-        self.w = v[0:-1]
+        self.w = v[0:self.DTR.shape[0]]
         self.b = v[-1]
     
     def _logreg_func(self, v):
@@ -59,8 +62,8 @@ class LogRegClassifier:
         return wrongPredictions, errorRate
     
     def compute_scores(self, DTE):
-        DTE = feature_expansion(DTE) if self.type == 'quadratic' else DTE
-        STE = numpy.dot(self.w, DTE) + self.b - (self.LTR[self.LTR == 1].shape[0] / self.LTR[self.LTR == 0].shape[0]) 
+        #DTE = feature_expansion(DTE) if self.type == 'quadratic' else DTE
+        STE = numpy.dot(self.w.T, DTE) + self.b 
         return STE
     
     

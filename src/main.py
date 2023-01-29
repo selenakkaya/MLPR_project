@@ -144,9 +144,7 @@ def logistic_regression(D, L):
                "costs": (1, 1),
                "l": 1e-5}
     
-    for options["normalization"] in ["yes", "no"]:
-        for options["m"] in [None, 11,10]:
-            print("")
+    for options["gaussianization"] in [ "no", "yes"]:
             for options["pi"] in [0.5, 0.1, 0.9]:
                 print("")
                 for options["pT"] in [0.5, 0.1, 0.9]:
@@ -158,6 +156,7 @@ def logistic_regression(D, L):
 
 #-------------------plot lambda - minDCF ----------------------------------------------#
 #plotter.plot_lambda_minDCF(D, L)
+plotter.plot_lambda_minDCF_quad(D, L)
 
 #----------------------------------------------------------------
 #-----------------------------SVM--------------------------------
@@ -165,8 +164,8 @@ def logistic_regression(D, L):
 
 def SVM(D, L):
     options = {"m": None,
-               "gaussianization": "yes",
-               "normalization" : "no",
+               "gaussianization": "no",
+               "normalization" : "yes",
                "K": K,#fold
                "k": 1.0,
                "C":1e-1,
@@ -199,8 +198,8 @@ def GMM(D, L):
                "K": K,
                "pi": 0.5,
                "costs": (1, 1),
-               "mode": "full",
-               "tiedness": "untied",
+               "mode": "full",  #naive, full
+               "tiedness": "untied", #tied, untied
                "n": 1}
     for options["n"] in [1, 2, 3]:
         for options["mode"] in [ "naive", "full"]:
@@ -209,6 +208,6 @@ def GMM(D, L):
                 eval.test_GMM(D, L, options)
 
 #GMM(D,L)
-#plotter.GMM_components_graph(D, L)
+#plotter.GMM_components_graph(D,L)
 
 

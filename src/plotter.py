@@ -86,6 +86,38 @@ def plot_lambda_minDCF(D, L):
     plt.xlabel("λ")
     plt.ylabel("minDCF")
     plt.savefig("LR_plots\lambda_minDCF.jpeg")
+
+
+
+
+def plot_lambda_minDCF_quad(D, L):
+    options = {"m": 10,
+               "gaussianization": "no",
+               "normalization" : "no",
+               "type" : "quadratic",
+               "K": K,
+               "pT": 0.5,
+               "pi": 0.5,
+               "costs": (1, 1),
+               "l": 1e-5}
+    
+    pis = [0.5, 0.1, 0.9]
+    lambdas = [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1e1, 1e2]
+    min_DCFs = {pi: [] for pi in pis}
+    for options["pi"] in pis:
+        print("")
+        for options["l"] in lambdas:
+            print(options)
+            min_DCF = eval.test_logistic_regression(D, L, options)
+            min_DCFs[options["pi"]].append(min_DCF)
+    plt.figure()
+    for pi in pis:
+        plt.plot(lambdas, min_DCFs[pi], label='prior='+str(pi))
+    plt.legend()
+    plt.semilogx()
+    plt.xlabel("λ")
+    plt.ylabel("minDCF")
+    plt.savefig("LR_plots\quadlr_raw.jpeg")
 ############### For Linear SVM ###############
 
 def plot_C_minDCF_L_SVM(D, L):
@@ -202,24 +234,20 @@ def GMM_components_graph(D, L):
                "tiedness": "untied",
                "n": 1}
     
-    ns = [1, 2]
+    ns = [2, 4]
     
     x_labels = ['2 components', '4 components']
     
-    
-    min_DCFs = {n: [] for n in ns}
-    for options["n"] in ns:
+    min_DCFs = {n: None for n in ns}
+    for n in ns:
+        options["n"] = n
         print("")
         print(options)
         min_DCF = eval.test_GMM(D, L, options)
-        min_DCFs[options["n"]].append(min_DCF)
-    plt.figure()
-    for n in ns:
-        # Create the bar plot
-        plt.bar(range(len(ns)), ns)
-    plt.xticks(range(len(ns)), x_labels)
+        min_DCFs[n] = min_DCF
 
-    plt.semilogx()
+    plt.figure()
+    plt.bar(x_labels, [min_DCFs[n] for n in ns])
     plt.xlabel("components")
-    plt.ylabel(str(options["mode"]) + str(options["tiedness"]))
-    plt.savefig("GMM_components_plot.jpeg")    
+    plt.ylabel("min DCF")
+    plt.savefig("GMM_components_plot.jpeg")   
