@@ -31,7 +31,7 @@ D_z_norm, mu, sigma = arrangeData.z_norm(D)
 D_gauss = arrangeData.gaussianization_f(D)
 
 
-"""
+
 #----------------------Show Heatmaps------------------------------
 
 
@@ -131,7 +131,6 @@ def gaussian_classifiers_gaussian_classifiers_with_gaussianization_PCA_11(D, L):
 #----------------------------------------------------------------
 #----------------------Logistic Regression-----------------------
 #----------------------------------------------------------------
-"""
 
 def logistic_regression(D, L):
     options = {"m": None,
@@ -152,7 +151,7 @@ def logistic_regression(D, L):
                     eval.test_logistic_regression(D, L, options)
 
 
-#logistic_regression(D,L)
+logistic_regression(D,L)
 
 #-------------------plot lambda - minDCF ----------------------------------------------#
 #plotter.plot_lambda_minDCF(D, L)
@@ -182,8 +181,8 @@ def SVM(D, L):
                     print(options)
                     eval.test_SVM(D, L, options)
 
-#SVM(D, L)
-#plotter.plot_C_minDCF_L_SVM(D, L) #change pT =0.1, 0.9 and take the plots
+SVM(D, L)
+plotter.plot_C_minDCF_L_SVM(D, L) #change pT =0.1, 0.9 and take the plots
 #plotter.plot_C_minDCF_Q_SVM(D, L) #change pT =0.1, 0.9 and take the plots
 #plotter.plot_minDCF_gamma_SVM(D, L)
 #----------------------------------------------------------------
@@ -207,7 +206,7 @@ def GMM(D, L):
                 print(options)
                 eval.test_GMM(D, L, options)
 
-#GMM(D,L)
-#plotter.GMM_components_graph(D,L)
+GMM(D,L)
+plotter.GMM_components_graph(D,L)
 
 
